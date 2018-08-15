@@ -28,16 +28,30 @@ class Generator(object):
         #     size=(n_samples, self._g_model.in_len))
         if self._save_path:
             self._viz_samples(sess, random_vec, plot_size,
-                              file_name='manifold', file_id=file_id)
+                              file_id=file_id)
 
-    def viz_manifold(self, sess, file_id=None):
+    def viz_interpolate(self, sess, n_sample=5, n_interp=15, file_id=None):
         random_vec = distributions.linear_interpolate(
             z1=None, z2=None,
-            z_shape=(5, self._g_model.in_len),
-            n_samples=10)
-
+            z_shape=(n_sample, self._g_model.in_len),
+            n_samples=n_interp)
+        random_vec = np.transpose(random_vec, (1, 0, 2))
+        random_vec = np.reshape(random_vec, (-1, self._g_model.in_len))
         if self._save_path:
-            self._viz_samples(sess, random_vec, plot_size=[5, 12], file_id=file_id)
+            self._viz_samples(sess, random_vec, plot_size=[n_sample, n_interp],
+                              file_name='interpolate', file_id=file_id)
+
+    def viz_2D_manifold(self, sess, plot_size, file_id=None):
+        # if z is None:
+        #     gen_im = sess.run(self._generate_op)
+        # else:
+        n_samples = plot_size * plot_size
+
+        random_vec = distributions.linear_2D_interpolate(
+            side_size=20,interpolate_range=[-1, 1, -1, 1])
+        if self._save_path:
+            self._viz_samples(sess, random_vec, plot_size,
+                              file_name='manifoid', file_id=file_id)
 
     def _viz_samples(self, sess, random_vec,
                      plot_size=10, file_name='generate_im', file_id=None):

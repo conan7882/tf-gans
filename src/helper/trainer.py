@@ -75,7 +75,7 @@ class Trainer(object):
 
             batch_data = self._train_data.next_batch_dict()
             im = batch_data['im']
-            label = batch_data['label']
+            # label = batch_data['label']
             
             # train discriminator
             for i in range(int(n_d_train)):

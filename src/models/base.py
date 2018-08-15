@@ -73,4 +73,5 @@ class GANBaseModel(object):
             if moniter:
                 [tf.summary.histogram('discriminator_gradient/' + var.name, grad, 
                     collections=['train']) for grad, var in zip(grads, var_list)]
+                # d_vars = [var for var in t_vars if 'd_' in var.name]
             return opt.apply_gradients(zip(grads, var_list))

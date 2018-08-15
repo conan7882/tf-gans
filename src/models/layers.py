@@ -28,7 +28,7 @@ def get_shape2D(in_val):
     Returns:
         list with length 2
     """
-    in_val = int(in_val)
+    # in_val = int(in_val)
     if isinstance(in_val, int):
         return [in_val, in_val]
     if isinstance(in_val, list):
@@ -150,9 +150,9 @@ def linear(out_dim,
 @add_arg_scope
 def transpose_conv(
                    filter_size,
-                   out_dim,
                    layer_dict,
                    inputs=None,
+                   out_dim=None,
                    out_shape=None,
                    stride=2,
                    padding='SAME',
@@ -178,7 +178,9 @@ def transpose_conv(
         out_shape = tf.stack([x_shape[0],
                               tf.multiply(x_shape[1], stride[1]), 
                               tf.multiply(x_shape[2], stride[2]),
-                              out_dim])        
+                              out_dim])
+    if out_dim is None:
+        out_dim = out_shape[-1] 
 
     filter_shape = get_shape2D(filter_size) + [out_dim, in_dim]
 

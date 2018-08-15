@@ -3,20 +3,19 @@
 # File: mnist.py
 # Author: Qian Ge <geqian1001@gmail.com>
 
-# from tensorflow.examples.tutorials.mnist import input_data
 import os
 import gzip
 import struct
 import numpy as np 
 import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
-from tensorcv.dataflow.base import RNGDataFlow
+# from tensorcv.dataflow.base import RNGDataFlow
+from src.utils.dataflow import get_rng
 
 
 def identity(im):
     return im
 
-class MNISTData(RNGDataFlow):
+class MNISTData(object):
     def __init__(self, name, data_dir='', n_use_label=None, n_use_sample=None,
                  batch_dict_name=None, shuffle=True, pf=identity):
         assert os.path.isdir(data_dir)
@@ -138,10 +137,9 @@ class MNISTData(RNGDataFlow):
         return [batch_files, batch_label]
 
     def setup(self, epoch_val, batch_size, **kwargs):
-        self.reset_epochs_completed(epoch_val)
-        self.set_batch_size(batch_size)
-        self.reset_state()
-        self._setup()
+        self._epochs_completed = epoch_val
+        self._batch_size = batch_size
+        self.rng = get_rng(self)
         try:
             self._suffle_files()
         except AttributeError:

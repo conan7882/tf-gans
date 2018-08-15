@@ -12,6 +12,19 @@ def random_vector(vec_shape, dist_type='gaussian'):
     else:
         return np.random.normal(size=vec_shape)
 
+def linear_2D_interpolate(side_size=20, interpolate_range=[-1, 1, -1, 1]):
+    assert len(interpolate_range) == 4
+    nx = side_size
+    ny = side_size
+    min_x = interpolate_range[0]
+    max_x = interpolate_range[1]
+    min_y = interpolate_range[2]
+    max_y = interpolate_range[3]
+    
+    zs = np.rollaxis(np.mgrid[min_x: max_x: nx*1j, max_y:min_y: ny*1j], 0, 3)
+    zs = zs.transpose(1, 0, 2)
+    return np.reshape(zs, (side_size * side_size, 2))
+
 def linear_interpolate(z1=None, z2=None, z_shape=None, n_samples=10):
     if z1 is None:
         z1 = np.random.uniform(-1, 1, size=z_shape)
@@ -57,6 +70,6 @@ def slerp(val, low, high):
     return np.sin((1.0-val)*omega) / so * low + np.sin(val*omega) / so * high
 
 if __name__ == "__main__":
-    z = great_circle_interpolate(z1=None, z2=None, z_shape=(2, 10), n_samples=10)
+    z = linear_interpolate(z1=None, z2=None, z_shape=(1, 2), n_samples=10)
     print(z)
 
