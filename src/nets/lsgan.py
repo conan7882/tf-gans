@@ -33,7 +33,7 @@ class LSGAN(GANBaseModel):
 
     def  _create_generate_input(self):
         self.random_vec = tf.placeholder(tf.float32, [None, self.in_len], 'input')
-        self.keep_prob = 1.0
+        self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
     def create_train_model(self):
         self.set_is_training(True)
@@ -97,12 +97,14 @@ class LSGAN(GANBaseModel):
                                  bn=True, nl=tf.nn.relu, name='dconv1')
                 L.transpose_conv(out_shape=output_shape, stride=1,
                                  bn=True, nl=tf.nn.relu, name='dconv2')
+                L.drop_out(self.layers, self.is_training, keep_prob=self.keep_prob)
 
                 output_shape = [b_size, d_height_4, d_width_4, 256]
                 L.transpose_conv(out_shape=output_shape, stride=2,
                                  bn=True, nl=tf.nn.relu, name='dconv3')
                 L.transpose_conv(out_shape=output_shape, stride=1,
                                  bn=True, nl=tf.nn.relu, name='dconv4')
+                L.drop_out(self.layers, self.is_training, keep_prob=self.keep_prob)
 
                 output_shape = [b_size, d_height_2, d_width_2, 128]
                 L.transpose_conv(out_shape=output_shape, stride=2,
@@ -111,6 +113,7 @@ class LSGAN(GANBaseModel):
                 output_shape = [b_size, self.im_h, self.im_w, 64]
                 L.transpose_conv(out_shape=output_shape, stride=2,
                                  bn=True, nl=tf.nn.relu, name='dconv6')
+                L.drop_out(self.layers, self.is_training, keep_prob=self.keep_prob)
 
                 output_shape = [b_size, self.im_h, self.im_w, self.n_channels]
                 L.transpose_conv(out_shape=output_shape, stride=1,
