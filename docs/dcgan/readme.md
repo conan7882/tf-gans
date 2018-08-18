@@ -11,7 +11,7 @@
 - [Matplotlib](https://matplotlib.org/)
 
 ## Implementation Details
-- DCGAN model is defined in [`/src/nets/dcgan.py`](/src/nets/dcgan.py). An example to show how to train and test the model is defined in [`examples/gans.py`](examples/gans.py).
+- DCGAN model is defined in [`/src/nets/dcgan.py`](/src/nets/dcgan.py). An example to show how to train and test the model is defined in [`examples/gans.py`](../../examples/gans.py).
 - As mentioned in the paper, [batch normalization](https://arxiv.org/abs/1502.03167) is used for all layers of generator and discriminator except the first and output layer of discriminator and the last layer of generator.
 - ReLU is used in the generator except for the output, which uses Tanh. LeakyReLU with Leaky = 0.2 is used in the discriminators.
 - All weights are initialized from a zero-centered Normal distribution with standard deviation 0.02. Learning rate is set to be 2e-4 and Adam optimizer with momentum = 0.5 is used for optimization.
