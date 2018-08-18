@@ -32,8 +32,8 @@ vector length = 100, images are rescale to 64 x 64
 - More result at epoch 25
 
 ![finalface](figs/face/final.png)
-
 - Interpolation between two faces
+
 ![interp1](figs/face/interpolate_22.png)
 ![interp2](figs/face/interpolate_24.png)
 
