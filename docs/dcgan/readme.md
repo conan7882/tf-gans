@@ -27,6 +27,10 @@ vector length = 100, images are rescale to 64 x 64
 
 *Epoch 0* | *Epoch 10* |*Epoch 20* | *Epoch 25* |
 :--: | :---: | :--: | :---: | 
-<img src = 'figs/face/generate_im_0.png?100x200' height = '200px' width = '200px'> | <img src = 'figs/face/generate_im_10.png' height = '200px' width = '200px'>|<img src = 'figs/face/generate_im_20.png' height = '200px' width = '200px'> | <img src = 'figs/face/generate_im_25.png' height = '200px' width = '200px'>
+<img src = 'figs/face/generate_im_0.png' height = '220px' width = '220px'> | <img src = 'figs/face/generate_im_10.png' height = '220px' width = '220px'>|<img src = 'figs/face/generate_im_20.png' height = '220px' width = '220px'> | <img src = 'figs/face/generate_im_25.png' height = '220px' width = '220px'>
+
+More result at epoch 25
+
+<img src = 'figs/face/final.png'> 
 
 
