@@ -33,7 +33,7 @@ class DCGAN(GANBaseModel):
 
     def  _create_generate_input(self):
         self.random_vec = tf.placeholder(tf.float32, [None, self.in_len], 'input')
-        self.keep_prob = 1.0
+        self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
     def create_train_model(self):
         self.set_is_training(True)
@@ -93,14 +93,17 @@ class DCGAN(GANBaseModel):
                 output_shape = [b_size, d_height_8, d_width_8, final_dim * 4]
                 L.transpose_conv(out_dim=final_dim * 4, out_shape=output_shape,
                                  bn=True, nl=tf.nn.relu, name='dconv1')
+                L.drop_out(self.layers, self.is_training, keep_prob=self.keep_prob)
 
                 output_shape = [b_size, d_height_4, d_width_4, final_dim * 2]
                 L.transpose_conv(out_dim=final_dim * 2, out_shape=output_shape,
                                  bn=True, nl=tf.nn.relu, name='dconv2')
+                L.drop_out(self.layers, self.is_training, keep_prob=self.keep_prob)
 
                 output_shape = [b_size, d_height_2, d_width_2, final_dim]
                 L.transpose_conv(out_dim=final_dim, out_shape=output_shape,
                                  bn=True, nl=tf.nn.relu, name='dconv3')
+                L.drop_out(self.layers, self.is_training, keep_prob=self.keep_prob)
 
                 output_shape = [b_size, self.im_h, self.im_w, self.n_channels]
                 L.transpose_conv(out_dim=self.n_channels, out_shape=output_shape,

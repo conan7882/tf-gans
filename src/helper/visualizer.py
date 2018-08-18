@@ -11,11 +11,12 @@ import matplotlib.patches as mpatches
 # import src.utils.viz as viz
 
 class Visualizer(object):
-    def __init__(self, model, save_path=None):
+    def __init__(self, model, keep_prob=1., save_path=None):
 
         self._save_path = save_path
         self._model = model
         self._latent_op = model.layers['z']
+        self._keep_prob = keep_prob
 
     def viz_2Dlatent_variable(self, sess, dataflow, batch_size=128, file_id=None):
         """
@@ -38,7 +39,7 @@ class Visualizer(object):
             latent_var = sess.run(
                 self._latent_op, 
                 feed_dict={self._model.encoder_in: im,
-                           self._model.keep_prob: 1.})
+                           self._model.keep_prob: self._keep_prob})
             try:           
                 latent_var_list.extend(latent_var[:, pick_dim])
             except UnboundLocalError:

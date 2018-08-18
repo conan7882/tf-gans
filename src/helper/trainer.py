@@ -110,7 +110,7 @@ class Trainer(object):
                 cur_summary = sess.run(
                     self._train_summary_op, 
                     feed_dict={self._t_model.real: im,
-                               self._t_model.keep_prob: 1.0,
+                               self._t_model.keep_prob: keep_prob,
                                self._t_model.random_vec: random_vec})
 
                 display(self.global_step,
@@ -125,7 +125,7 @@ class Trainer(object):
         cur_summary = sess.run(
                     self._train_summary_op, 
                     feed_dict={self._t_model.real: im,
-                               self._t_model.keep_prob: 1.0,
+                               self._t_model.keep_prob: keep_prob,
                                self._t_model.random_vec: random_vec})
         display(self.global_step,
                 step,

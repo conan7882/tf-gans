@@ -47,7 +47,7 @@ def get_args():
                         help='Load step of pre-trained')
     parser.add_argument('--lr', type=float, default=2e-4,
                         help='Init learning rate')
-    parser.add_argument('--keep_prob', type=float, default=2e-4,
+    parser.add_argument('--keep_prob', type=float, default=1.,
                         help='keep_prob')
     parser.add_argument('--bsize', type=int, default=128,
                         help='Init learning rate')
@@ -129,7 +129,7 @@ def train():
     trainer = Trainer(train_model, train_data,
                       moniter_gradient=False,
                       init_lr=FLAGS.lr, save_path=SAVE_PATH)
-    generator = Generator(generate_model, save_path=SAVE_PATH)
+    generator = Generator(generate_model, keep_prob=FLAGS.keep_prob, save_path=SAVE_PATH)
 
     sessconfig = tf.ConfigProto()
     sessconfig.gpu_options.allow_growth = True

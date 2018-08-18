@@ -14,11 +14,12 @@ import src.models.distributions as distributions
 
 
 class Generator(object):
-    def __init__(self, generate_model, save_path=None):
+    def __init__(self, generate_model, keep_prob=1., save_path=None):
 
         self._save_path = save_path
         self._g_model = generate_model
         self._generate_op = generate_model.layers['generate']
+        self._keep_prob = keep_prob
 
     def random_sampling(self, sess, plot_size=10, file_id=None):
         n_samples = plot_size * plot_size
@@ -57,7 +58,8 @@ class Generator(object):
                      plot_size=10, file_name='generate_im', file_id=None):
         plot_size = utils.get_shape2D(plot_size)
         gen_im = sess.run(self._generate_op,
-                          feed_dict={self._g_model.random_vec: random_vec})
+                          feed_dict={self._g_model.random_vec: random_vec,
+                                     self._g_model.keep_prob: self._keep_prob})
         if self._save_path:
             if file_id is not None:
                 im_save_path = os.path.join(
