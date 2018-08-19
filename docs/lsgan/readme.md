@@ -46,7 +46,7 @@
 
 - Interpolation between two faces
 
-![interp1](figs/face/interpolate_22.png)
-![interp2](figs/face/interpolate_24.png)
+![interp1](figs/face/interpolate_47.png)
+![interp2](figs/face/interpolate_49.png)
 
 
