@@ -34,7 +34,7 @@
 ![manifold](figs/mnist/manifoid_24.png)
 
 ### CelebA
-- vector length = 100, images are rescale to 64 x 64
+- vector length = 1024, images are rescale to 64 x 64
 
 *Epoch 1* | *Epoch 7* |
 :--: | :---: |
