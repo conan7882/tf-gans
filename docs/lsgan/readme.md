@@ -36,9 +36,13 @@
 ### CelebA
 - vector length = 100, images are rescale to 64 x 64
 
-*Epoch 1* | *Epoch 10* |*Epoch 20* | *Epoch 25* |
-:--: | :---: | :--: | :---: | 
-<img src = 'figs/face/generate_im_0.png' height = '220px' width = '220px'> | <img src = 'figs/face/generate_im_10.png' height = '220px' width = '220px'>|<img src = 'figs/face/generate_im_20.png' height = '220px' width = '220px'> | <img src = 'figs/face/generate_im_25.png' height = '220px' width = '220px'>
+*Epoch 1* | *Epoch 7* |
+:--: | :---: |
+<img src = 'figs/face/generate_im_0.png' height = '220px' width = '220px'> | <img src = 'figs/face/generate_im_6.png' height = '220px' width = '220px'>|
+
+*Epoch 17* | *Epoch 27* |*Epoch 50* |
+:--: | :---: | :--: |
+<img src = 'figs/face/generate_im_16.png' height = '220px' width = '220px'> | <img src = 'figs/face/generate_im_26.png' height = '220px' width = '220px'>|<img src = 'figs/face/generate_im_49.png' height = '220px' width = '220px'>
 
 - More result at epoch 25
 
