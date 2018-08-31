@@ -18,13 +18,13 @@ def fill_pf_list(pf_list, n_pf, fill_with_fnc=identity):
         return [identity for i in range(n_pf)]
     # pf_list = [pf for pf in pf_list if pf is not None else identity]
     new_list = []
+    pf_list = utils.make_list(pf_list)
     for pf in pf_list:
         if not pf:
             pf = identity
         new_list.append(pf)
     pf_list = new_list
 
-    pf_list = utils.make_list(pf_list)
     if len(pf_list) > n_pf:
         raise ValueError('Invalid number of preprocessing functions')
     pf_list = pf_list + [fill_with_fnc for i in range(n_pf - len(pf_list))]
