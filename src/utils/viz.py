@@ -5,6 +5,7 @@
 
 import numpy as np
 import scipy.misc
+import tensorflow as tf
 
 
 def viz_batch_im(batch_im, grid_size, save_path,
@@ -38,3 +39,24 @@ def viz_batch_im(batch_im, grid_size, save_path,
                  i * (w + gap) + gap: i * (w + gap) + w + gap, :]\
             = (cur_im)
     scipy.misc.imsave(save_path, np.squeeze(merge_im))
+
+def display(global_step,
+            step,
+            scaler_sum_list,
+            name_list,
+            collection,
+            summary_val=None,
+            summary_writer=None,
+            ):
+    print('[step: {}]'.format(global_step), end='')
+    for val, name in zip(scaler_sum_list, name_list):
+        print(' {}: {:.4f}'.format(name, val * 1. / step), end='')
+    print('')
+    if summary_writer is not None:
+        s = tf.Summary()
+        for val, name in zip(scaler_sum_list, name_list):
+            s.value.add(tag='{}/{}'.format(collection, name),
+                        simple_value=val * 1. / step)
+        summary_writer.add_summary(s, global_step)
+        if summary_val is not None:
+            summary_writer.add_summary(summary_val, global_step)

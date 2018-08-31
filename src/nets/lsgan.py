@@ -135,11 +135,11 @@ class LSGAN(GANBaseModel):
     def get_train_summary(self):
         with tf.name_scope('train'):
             tf.summary.image(
-                'real image',
+                'real_image',
                 tf.cast((self.real + 1) / 2., tf.float32),
                 collections=['train'])
             tf.summary.image(
-                'generate image',
+                'generate_image',
                 tf.cast(self.layers['generate'], tf.float32),
                 collections=['train'])
         

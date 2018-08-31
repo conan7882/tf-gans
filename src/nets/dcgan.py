@@ -120,40 +120,17 @@ class DCGAN(GANBaseModel):
                 layer_dict=self.layers,
                 start_depth=64,
                 wd=0)
-            # self.layers['cur_input'] = inputs
-            # start_depth = 64
-            # filter_size = 5
-            # b_size = tf.shape(inputs)[0]
-
-            # arg_scope = tf.contrib.framework.arg_scope
-            # with arg_scope([L.conv], 
-            #                 filter_size=filter_size, layer_dict=self.layers,
-            #                 stride=2, nl=L.leaky_relu, add_summary=False,
-            #                 init_w=INIT_W, wd=0, is_training=self.is_training):
-
-            #     L.conv(out_dim=start_depth, name='conv1', bn=False)
-            #     L.conv(out_dim=start_depth * 2, name='conv2', bn=True)
-            #     L.conv(out_dim=start_depth * 4, name='conv3', bn=True)
-            #     L.conv(out_dim=start_depth * 8, name='conv4', bn=True)
-
-            # L.linear(out_dim=1,
-            #          layer_dict=self.layers,
-            #          init_w=INIT_W,
-            #          wd=0,
-            #          bn=False,
-            #          is_training=self.is_training,
-            #          name='Linear')
 
             return d_out
 
     def get_train_summary(self):
         with tf.name_scope('train'):
             tf.summary.image(
-                'real image',
+                'real_image',
                 tf.cast((self.real + 1) / 2., tf.float32),
                 collections=['train'])
             tf.summary.image(
-                'generate image',
+                'generate_image',
                 tf.cast(self.layers['generate'], tf.float32),
                 collections=['train'])
         
