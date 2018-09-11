@@ -127,11 +127,8 @@ def train_type_1():
             if FLAGS.zlen == 2:
                 generator.viz_2D_manifold(sess, plot_size=20, file_id=epoch_id)
 
-            saver.save(
-                sess, '{}gan-{}-epoch-{}'.format(save_path, FLAGS.gan_type, epoch_id))
-
-        saver.save(
-            sess, '{}gan-{}-epoch-{}'.format(save_path, FLAGS.gan_type, epoch_id))
+            saver.save(sess, '{}gan-{}-epoch-{}'.format(save_path, FLAGS.gan_type, epoch_id))
+        saver.save(sess, '{}gan-{}-epoch-{}'.format(save_path, FLAGS.gan_type, epoch_id))
 
 def train_type_2():
     FLAGS = get_args()
@@ -173,6 +170,8 @@ def train_type_2():
                 summary_writer=writer)
             generator.random_sampling(sess, plot_size=10, file_id=epoch_id)
             generator.viz_interpolate(sess, file_id=epoch_id)
+            saver.save(sess,'{}gan-{}-epoch-{}'.format(save_path, FLAGS.gan_type, epoch_id))
+        saver.save(sess, '{}gan-{}-epoch-{}'.format(save_path, FLAGS.gan_type, epoch_id))
 
 if __name__ == "__main__":
     FLAGS = get_args()

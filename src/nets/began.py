@@ -53,7 +53,7 @@ class BEGAN(GANBaseModel):
             self.kt = tf.get_variable('kt',
                                       dtype=tf.float32,
                                       initializer=tf.constant(0.),
-                                      trainable=True)
+                                      trainable=False)
         self.fake = self.generator(self.random_vec)
         self.layers['generate'] = self.fake #(self.fake + 1) / 2.
 
@@ -76,7 +76,7 @@ class BEGAN(GANBaseModel):
             self.kt = tf.get_variable('kt',
                                       dtype=tf.float32,
                                       initializer=tf.constant(0.),
-                                      trainable=True)
+                                      trainable=False)
 
         self.fake = self.generator(self.random_vec)
         self.layers['generate'] = self.fake
@@ -129,27 +129,27 @@ class BEGAN(GANBaseModel):
     def generator(self, inputs):
         with tf.variable_scope('generator', reuse=tf.AUTO_REUSE):
 
-            # modules.BEGAN_decoder(
-            #     inputs=inputs,
-            #     layer_dict=self.layers,
-            #     start_size=self._decoder_start_size,
-            #     n_feature=64,
-            #     n_channle=self.n_channels,
-            #     init_w=INIT_W,
-            #     is_training=self.is_training,
-            #     bn=BN,
-            #     wd=0)
-
-            decoder_out = modules.LSGAN_generator(
+            modules.BEGAN_decoder(
                 inputs=inputs,
                 layer_dict=self.layers,
-                im_size=[self.im_h, self.im_w],
+                start_size=self._decoder_start_size,
+                n_feature=64,
                 n_channle=self.n_channels,
                 init_w=INIT_W,
-                keep_prob=self.keep_prob,
-                wd=0,
                 is_training=self.is_training,
-                bn=BN)
+                bn=BN,
+                wd=0)
+
+            # decoder_out = modules.LSGAN_generator(
+            #     inputs=inputs,
+            #     layer_dict=self.layers,
+            #     im_size=[self.im_h, self.im_w],
+            #     n_channle=self.n_channels,
+            #     init_w=INIT_W,
+            #     keep_prob=self.keep_prob,
+            #     wd=0,
+            #     is_training=self.is_training,
+            #     bn=BN)
             
             output = self.layers['cur_input']
             output = tf.reshape(
@@ -169,27 +169,27 @@ class BEGAN(GANBaseModel):
                 bn=BN,
                 wd=0)
 
-            decoder_out = modules.LSGAN_generator(
-                inputs=encoder_out,
-                layer_dict=self.layers,
-                im_size=[self.im_h, self.im_w],
-                n_channle=self.n_channels,
-                init_w=INIT_W,
-                keep_prob=self.keep_prob,
-                wd=0,
-                is_training=self.is_training,
-                bn=BN)
-
-            # decoder_out = modules.BEGAN_decoder(
+            # decoder_out = modules.LSGAN_generator(
             #     inputs=encoder_out,
             #     layer_dict=self.layers,
-            #     start_size=self._decoder_start_size,
-            #     n_feature=64,
+            #     im_size=[self.im_h, self.im_w],
             #     n_channle=self.n_channels,
             #     init_w=INIT_W,
+            #     keep_prob=self.keep_prob,
+            #     wd=0,
             #     is_training=self.is_training,
-            #     bn=BN,
-            #     wd=0)
+            #     bn=BN)
+
+            decoder_out = modules.BEGAN_decoder(
+                inputs=encoder_out,
+                layer_dict=self.layers,
+                start_size=self._decoder_start_size,
+                n_feature=64,
+                n_channle=self.n_channels,
+                init_w=INIT_W,
+                is_training=self.is_training,
+                bn=BN,
+                wd=0)
 
             return decoder_out
 
@@ -220,11 +220,7 @@ class BEGAN(GANBaseModel):
         display_name_list = ['d_loss', 'g_loss']
         cur_summary = None
 
-        lr = init_lr
-        # if self.epoch_id == 100:
-        #     lr = init_lr / 10
-        # if self.epoch_id == 300:
-        #     lr = init_lr / 10
+        lr = init_lr * (0.95**self.epoch_id)
 
         cur_epoch = train_data.epochs_completed
 
@@ -268,7 +264,8 @@ class BEGAN(GANBaseModel):
             sess.run(
                 self.update_op, 
                 feed_dict={self.real: im,
-                           self.random_vec: random_vec})
+                           self.random_vec: random_vec,
+                           self.keep_prob: keep_prob,})
 
             d_loss_sum += d_loss
             g_loss_sum += g_loss

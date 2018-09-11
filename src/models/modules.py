@@ -69,7 +69,8 @@ def BEGAN_encoder(inputs, layer_dict, n_code=64, start_depth=64,
 
 def BEGAN_decoder(inputs, layer_dict,
                   start_size=8, n_feature=64, n_channle=3,
-                  init_w=None, is_training=True, bn=False, wd=0, name='BEGAN_decoder'):
+                  init_w=None, is_training=True, bn=False, wd=0,
+                  name='BEGAN_decoder'):
 
     with tf.variable_scope(name):
         layer_dict['cur_input'] = inputs
@@ -127,8 +128,8 @@ def LSGAN_generator(inputs, layer_dict,
                  is_training=is_training,
                  name='Linear',
                  nl=tf.nn.relu)
-        self.layers['cur_input'] = tf.reshape(
-            self.layers['cur_input'],
+        layer_dict['cur_input'] = tf.reshape(
+            layer_dict['cur_input'],
             [-1, d_height_16, d_width_16, 256])
 
         arg_scope = tf.contrib.framework.arg_scope
@@ -162,5 +163,5 @@ def LSGAN_generator(inputs, layer_dict,
             L.transpose_conv(out_shape=output_shape, stride=1,
                              bn=False, nl=tf.tanh, name='dconv7')
 
-            return self.layers['cur_input']
+            return layer_dict['cur_input']
 
