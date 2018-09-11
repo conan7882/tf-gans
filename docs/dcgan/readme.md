@@ -1,7 +1,7 @@
 # Deep Convolutional Generative Adversarial Networks (DCGAN)
 
 - TensorFlow implementation of [Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks](https://arxiv.org/abs/1511.06434) (ICLR 2016). 
-- Both generator and discriminator are multiple layers CNNs. Generator takes a random vector as input. Discriminator takes real and fake images as input. Feature maps are up-sampled and down-sampled through convolutional layers with stride = 2, so there is no pooling layers.
+- Both generator and discriminator are multiple layers CNNs. Generator takes a random vector as input. Discriminator takes real and fake images as input. Feature maps are up-sampled and down-sampled through convolutional layers with stride = 2, so there is no pooling layer.
  
 ## Requirements
 - Python 3.3+
@@ -44,7 +44,7 @@
 ![manifold](figs/mnist/manifoid_23.png)
 
 ### CelebA
-- vector length = 100, images are rescale to 64 x 64
+- vector length = 100, images are rescale to 64 x 64, no dropout
 
 *Epoch 1* | *Epoch 10* |*Epoch 20* | *Epoch 25* |
 :--: | :---: | :--: | :---: | 
