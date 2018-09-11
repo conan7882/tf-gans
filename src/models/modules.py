@@ -35,7 +35,7 @@ def DCGAN_discriminator(inputs, init_w, is_training, layer_dict,
 
             return layer_dict['cur_input']
 
-def BEGAN_encoder(inputs, layer_dict, n_code=64, start_depth=64,
+def BEGAN_encoder(inputs, layer_dict, n_code=64, start_depth=64, nl=tf.nn.relu,
                   init_w=None, is_training=True, bn=False, wd=0, name='encoder'):
     with tf.variable_scope(name):
         layer_dict['cur_input'] = inputs
@@ -62,7 +62,8 @@ def BEGAN_encoder(inputs, layer_dict, n_code=64, start_depth=64,
                      layer_dict=layer_dict,
                      init_w=init_w,
                      wd=wd,
-                     bn=False,
+                     nl=nl,
+                     bn=bn,
                      is_training=is_training,
                      name='Linear')
             return layer_dict['cur_input']
@@ -102,9 +103,10 @@ def BEGAN_decoder(inputs, layer_dict,
             # L.conv(out_dim=n_feature, stride=1, name='conv6')
             L.transpose_conv(out_dim=n_feature, stride=2, name='dconv6') 
 
-            L.conv(out_dim=n_channle, stride=1, name='decoder_out', nl=tf.identity, bn=False) 
+            L.conv(out_dim=n_channle, stride=1, name='decoder_out',
+                   nl=tf.tanh, bn=False) 
 
-            return tf.tanh(layer_dict['cur_input'])
+            return layer_dict['cur_input']
 
 def LSGAN_generator(inputs, layer_dict,
                     im_size, n_channle=3,
@@ -127,8 +129,8 @@ def LSGAN_generator(inputs, layer_dict,
                  is_training=is_training,
                  name='Linear',
                  nl=tf.nn.relu)
-        self.layers['cur_input'] = tf.reshape(
-            self.layers['cur_input'],
+        layer_dict['cur_input'] = tf.reshape(
+            layer_dict['cur_input'],
             [-1, d_height_16, d_width_16, 256])
 
         arg_scope = tf.contrib.framework.arg_scope
@@ -162,5 +164,5 @@ def LSGAN_generator(inputs, layer_dict,
             L.transpose_conv(out_shape=output_shape, stride=1,
                              bn=False, nl=tf.tanh, name='dconv7')
 
-            return self.layers['cur_input']
+            return layer_dict['cur_input']
 

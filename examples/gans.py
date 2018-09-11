@@ -146,7 +146,7 @@ def train_type_2():
 
     im_size = 64
     n_channels = 3
-    # train_data = loader.load_mnist(FLAGS.bsize, rescale_size=32)
+    # train_data = loader.load_mnist(FLAGS.bsize, rescale_size=None)
     train_data = loader.load_celeba(FLAGS.bsize)
     
     train_model = BEGAN(input_len=64, im_size=im_size, n_channels=n_channels)

@@ -48,5 +48,5 @@ def discriminator_least_square_loss(d_fake_logits, d_real_logits,
 
 def l2_loss(x, y):
     with tf.name_scope('l2_loss'):
-        # return tf.reduce_mean(tf.reduce_sum((x - y) ** 2))
-        return tf.reduce_mean((x - y) ** 2)
+        return tf.reduce_mean(tf.sqrt(tf.reduce_sum((x - y) ** 2)))
+        # return tf.reduce_mean(tf.sqrt((x - y) ** 2))
