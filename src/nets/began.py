@@ -53,7 +53,7 @@ class BEGAN(GANBaseModel):
             self.kt = tf.get_variable('kt',
                                       dtype=tf.float32,
                                       initializer=tf.constant(0.),
-                                      trainable=True)
+                                      trainable=False)
         self.fake = self.generator(self.random_vec)
         self.layers['generate'] = self.fake #(self.fake + 1) / 2.
 
@@ -148,7 +148,7 @@ class BEGAN(GANBaseModel):
                 bn=BN,
                 wd=0)
 
-            # modules.LSGAN_generator(
+            # decoder_out = modules.LSGAN_generator(
             #     inputs=inputs,
             #     layer_dict=self.layers,
             #     im_size=[self.im_h, self.im_w],
@@ -228,11 +228,7 @@ class BEGAN(GANBaseModel):
         display_name_list = ['d_loss', 'g_loss', 'L_fake', 'L_real']
         cur_summary = None
 
-        lr = init_lr
-        # if self.epoch_id == 100:
-        #     lr = init_lr / 10
-        # if self.epoch_id == 300:
-        #     lr = init_lr / 10
+        lr = init_lr * (0.95**self.epoch_id)
 
         cur_epoch = train_data.epochs_completed
 
@@ -278,8 +274,8 @@ class BEGAN(GANBaseModel):
             _, L_fake, L_real = sess.run(
                 [self.update_op, self.L_fake, self.L_real],
                 feed_dict={self.real: im,
-                           self.keep_prob: keep_prob,
-                           self.random_vec: random_vec})
+                           self.random_vec: random_vec,
+                           self.keep_prob: keep_prob,})
 
             d_loss_sum += d_loss
             g_loss_sum += g_loss

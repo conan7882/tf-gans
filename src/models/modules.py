@@ -70,7 +70,8 @@ def BEGAN_encoder(inputs, layer_dict, n_code=64, start_depth=64, nl=tf.nn.relu,
 
 def BEGAN_decoder(inputs, layer_dict,
                   start_size=8, n_feature=64, n_channle=3,
-                  init_w=None, is_training=True, bn=False, wd=0, name='BEGAN_decoder'):
+                  init_w=None, is_training=True, bn=False, wd=0,
+                  name='BEGAN_decoder'):
 
     with tf.variable_scope(name):
         layer_dict['cur_input'] = inputs
