@@ -13,11 +13,11 @@ import src.models.distributions as distributions
 import src.utils.viz as viz
 
 
-INIT_W = tf.random_normal_initializer(stddev=0.002)
+INIT_W = tf.random_normal_initializer(stddev=0.02)
 BN = True
 
 class BEGAN(GANBaseModel):
-    def __init__(self, input_len, im_size, n_channels, gamma=0.8, lambda_k=1e-3):
+    def __init__(self, input_len, im_size, n_channels, gamma=0.4, lambda_k=1e-3):
         im_size = L.get_shape2D(im_size)
         # self.in_len = input_len
         self.im_h, self.im_w = im_size
@@ -228,7 +228,7 @@ class BEGAN(GANBaseModel):
         display_name_list = ['d_loss', 'g_loss', 'L_fake', 'L_real']
         cur_summary = None
 
-        lr = init_lr * (0.95**self.epoch_id)
+        lr = init_lr * (0.9**self.epoch_id)
 
         cur_epoch = train_data.epochs_completed
 
