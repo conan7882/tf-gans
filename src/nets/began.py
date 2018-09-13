@@ -17,9 +17,18 @@ INIT_W = tf.random_normal_initializer(stddev=0.02)
 BN = True
 
 class BEGAN(GANBaseModel):
-    def __init__(self, input_len, im_size, n_channels, gamma=0.4, lambda_k=1e-3):
+    """ class of BEGAN """
+    def __init__(self, input_len, im_size, n_channels, gamma=0.7, lambda_k=1e-3):
+        """
+        Args:
+            input_len (int): length of input random vector
+            im_size (int or list with length 2): size of generate image 
+            n_channels (int): number of image channels
+            gamma (float): Diversity ratio [0, 1] float. Lower value leads to
+                lower image diversity.
+            lambda_k (float): learning rate for updating k   
+        """
         im_size = L.get_shape2D(im_size)
-        # self.in_len = input_len
         self.im_h, self.im_w = im_size
         self.n_channels = n_channels
         self.n_code = input_len
@@ -28,10 +37,10 @@ class BEGAN(GANBaseModel):
         self._gamma = gamma
 
         self._decoder_start_size = 8
-
         self.layers = {}
 
     def _create_train_input(self):
+        """ input for training """
         self.random_vec = tf.placeholder(tf.float32, [None, self.n_code], 'input')
         self.real = tf.placeholder(
             tf.float32, 
@@ -41,10 +50,12 @@ class BEGAN(GANBaseModel):
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
     def  _create_generate_input(self):
+        """ input for sampling """
         self.random_vec = tf.placeholder(tf.float32, [None, self.n_code], 'input')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
     def create_train_model(self):
+        """ create graph for training """
         self.set_is_training(True)
         self._create_train_input()
         self.epoch_id = 0
@@ -55,8 +66,7 @@ class BEGAN(GANBaseModel):
                                       initializer=tf.constant(0.),
                                       trainable=False)
         self.fake = self.generator(self.random_vec)
-        self.layers['generate'] = self.fake #(self.fake + 1) / 2.
-
+        self.layers['generate'] = self.fake 
         self.layers['decoder_fake'] = self.discriminator(self.fake)
         self.layers['decoder_real'] = self.discriminator(self.real)
 
@@ -70,6 +80,7 @@ class BEGAN(GANBaseModel):
         self.train_summary_op = self.get_train_summary()
 
     def create_generate_model(self):
+        """ create graph for sampling """
         self.set_is_training(False)
         self._create_generate_input()
 
@@ -83,49 +94,34 @@ class BEGAN(GANBaseModel):
         self.layers['generate'] = self.fake
 
     def get_autoencoder_losses(self):
+        """ get autoencoder loss for real and fake images """
         real_x = self.real
         real_y = self.layers['decoder_real']
         fake_x = self.fake
         fake_y = self.layers['decoder_fake']
-        self.L_real = losses.l2_loss(real_x, real_y)
-        self.L_fake = losses.l2_loss(fake_x, fake_y)
+
+        self.L_real = losses.l1_loss(real_x, real_y)
+        self.L_fake = losses.l1_loss(fake_x, fake_y)
 
     def update_k(self):
+        """ update op for k """
         with tf.name_scope('update_k'):
-            # real_x = self.real
-            # real_y = self.layers['decoder_real']
-            # fake_x = self.fake
-            # fake_y = self.layers['decoder_fake']
-            # L_real = losses.l2_loss(real_x, real_y)
-            # L_fake = losses.l2_loss(fake_x, fake_y)
             new_k = self.kt + self._lambda * (self._gamma * self.L_real - self.L_fake)
             new_k = tf.clip_by_value(new_k, 0., 1., name='clip_k')
             update = self.kt.assign(new_k)
             return update
 
     def get_convergence(self):
+        """ get the measure of convergence """
         with tf.name_scope('convergence'):
-            # real_x = self.real
-            # real_y = self.layers['decoder_real']
-            # fake_x = self.fake
-            # fake_y = self.layers['decoder_fake']
-            # L_real = losses.l2_loss(real_x, real_y)
-            # L_fake = losses.l2_loss(fake_x, fake_y)
             return self.L_real + tf.abs(self._gamma * self.L_real - self.L_fake)
 
     def _get_generator_loss(self):
         with tf.name_scope('generator_loss'):
-            # x = self.fake
-            # y = self.layers['decoder_fake']
             return self.L_fake
 
     def _get_discriminator_loss(self):
         with tf.name_scope('discriminator_loss'):
-            # real_x = self.real
-            # real_y = self.layers['decoder_real']
-            # fake_x = self.fake
-            # fake_y = self.layers['decoder_fake']
-
             return self.L_real - self.kt * self.L_fake
 
     def _get_generator_optimizer(self):
@@ -228,10 +224,9 @@ class BEGAN(GANBaseModel):
         display_name_list = ['d_loss', 'g_loss', 'L_fake', 'L_real']
         cur_summary = None
 
-        lr = init_lr * (0.9**self.epoch_id)
+        lr = init_lr * (0.95**self.epoch_id)
 
         cur_epoch = train_data.epochs_completed
-
         step = 0
         d_loss_sum = 0
         g_loss_sum = 0
@@ -249,8 +244,6 @@ class BEGAN(GANBaseModel):
             for i in range(int(n_d_train)):
                 random_vec = distributions.random_vector(
                     (len(im), self.n_code), dist_type='uniform')
-                # random_vec = np.random.normal(
-                #     size=(len(im), self._t_model.in_len))
                 _, d_loss = sess.run(
                     [self.train_d_op, self.d_loss_op], 
                     feed_dict={self.real: im,
@@ -269,6 +262,7 @@ class BEGAN(GANBaseModel):
                                self.keep_prob: keep_prob,
                                self.random_vec: random_vec})
 
+            # update k
             random_vec = distributions.random_vector(
                     (len(im), self.n_code), dist_type='uniform')
             _, L_fake, L_real = sess.run(
@@ -301,10 +295,10 @@ class BEGAN(GANBaseModel):
 
         print('==== epoch: {}, lr:{} ===='.format(cur_epoch, lr))
         cur_summary = sess.run(
-                    self.train_summary_op, 
-                    feed_dict={self.real: im,
-                               self.keep_prob: keep_prob,
-                               self.random_vec: random_vec})
+            self.train_summary_op, 
+            feed_dict={self.real: im,
+                       self.keep_prob: keep_prob,
+                       self.random_vec: random_vec})
         viz.display(
             self.global_step,
             step,
@@ -314,4 +308,3 @@ class BEGAN(GANBaseModel):
             'train',
             summary_val=cur_summary,
             summary_writer=summary_writer)
-

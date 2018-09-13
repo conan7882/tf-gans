@@ -10,6 +10,16 @@ import tensorflow as tf
 
 def viz_batch_im(batch_im, grid_size, save_path,
                  gap=0, gap_color=0, shuffle=False):
+    """ save batch of image as a single image 
+
+    Args:
+        batch_im (list): list of images 
+        grid_size (list of 2): size (number of samples in row and column) of saving image
+        save_path (str): directory for saving sampled images
+        gap (int): number of pixels between two images
+        gap_color (int): color of gap between images
+        shuffle (bool): shuffle batch images for saving or not
+    """
 
     batch_im = np.array(batch_im)
     if len(batch_im.shape) == 4:
@@ -48,6 +58,23 @@ def display(global_step,
             summary_val=None,
             summary_writer=None,
             ):
+    """ Display averaged intermediate results for a period during training.
+
+    The intermediate result will be displayed as:
+    [step: global_step] name_list[0]: scaler_sum_list[0]/step ...
+    Those result will be saved as summary as well.
+
+    Args:
+        global_step (int): index of current iteration
+        step (int): number of steps for this period
+        scaler_sum_list (float): list of summation of the intermediate
+            results for this period
+        name_list (str): list of display name for each intermediate result
+        collection (str): list of graph collections keys for summary
+        summary_val : additional summary to be saved
+        summary_writer (tf.FileWriter): write for summary. No summary will be
+            saved if None.
+    """
     print('[step: {}]'.format(global_step), end='')
     for val, name in zip(scaler_sum_list, name_list):
         print(' {}: {:.4f}'.format(name, val * 1. / step), end='')

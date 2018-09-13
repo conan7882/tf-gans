@@ -21,12 +21,7 @@ import loader as loader
 # from src.helper.visualizer import Visualizer
 # import src.models.distribution as distribution
 
-if platform.node() == 'Qians-MacBook-Pro.local':
-    SAVE_PATH = '/Users/gq/tmp/'
-elif platform.node() == 'arostitan':
-    SAVE_PATH = '/home/qge2/workspace/data/out/gans/'
-else:
-    SAVE_PATH = None
+SAVE_PATH = '/home/qge2/workspace/data/out/gans/'
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -95,19 +90,23 @@ def train_type_1():
         im_size = 28
         n_channels = 1
 
+    # init training model
     train_model = gan_model(input_len=FLAGS.zlen,
                             im_size=im_size,
                             n_channels=n_channels)
     train_model.create_train_model()
 
+    # init generate model
     generate_model = gan_model(input_len=FLAGS.zlen,
                                im_size=im_size,
                                n_channels=n_channels)
     generate_model.create_generate_model()
 
+    # create trainer
     trainer = Trainer(train_model, train_data,
                       moniter_gradient=False,
                       init_lr=FLAGS.lr, save_path=save_path)
+    # create generator for sampling
     generator = Generator(generate_model, keep_prob=FLAGS.keep_prob,
                           save_path=save_path)
 
@@ -141,17 +140,25 @@ def train_type_2():
     save_path = os.path.join(SAVE_PATH, FLAGS.gan_type)
     save_path += '/'
 
-    im_size = 64
-    n_channels = 3
-    # train_data = loader.load_mnist(FLAGS.bsize, rescale_size=None)
-    train_data = loader.load_celeba(FLAGS.bsize)
+    # load dataset
+    if FLAGS.dataset == 'celeba':
+        train_data = loader.load_celeba(FLAGS.bsize)
+        im_size = 64
+        n_channels = 3
+    else:
+        train_data = loader.load_mnist(FLAGS.bsize)
+        im_size = 28
+        n_channels = 1
     
+    # init training model
     train_model = BEGAN(input_len=64, im_size=im_size, n_channels=n_channels)
     train_model.create_train_model()
 
+    # init generate model
     generate_model = BEGAN(input_len=64, im_size=im_size, n_channels=n_channels)
     generate_model.create_generate_model()
 
+    # create generator for sampling
     generator = Generator(generate_model,
                           keep_prob=FLAGS.keep_prob,
                           save_path=save_path)
@@ -166,7 +173,7 @@ def train_type_2():
         for epoch_id in range(FLAGS.maxepoch):
             train_model.train_epoch(
                 sess, train_data, init_lr=FLAGS.lr,
-                n_g_train=1, n_d_train=1, keep_prob=1.0,
+                n_g_train=FLAGS.ng, n_d_train=FLAGS.nd, keep_prob=1.0,
                 summary_writer=writer)
             generator.random_sampling(sess, plot_size=10, file_id=epoch_id)
             generator.viz_interpolate(sess, file_id=epoch_id)

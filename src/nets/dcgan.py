@@ -14,7 +14,14 @@ import src.models.losses as losses
 INIT_W = tf.random_normal_initializer(stddev=0.02)
 
 class DCGAN(GANBaseModel):
+    """ class for DCGAN """
     def __init__(self, input_len, im_size, n_channels):
+        """
+        Args:
+            input_len (int): length of input random vector
+            im_size (int or list with length 2): size of generate image 
+            n_channels (int): number of image channels
+        """
         im_size = L.get_shape2D(im_size)
         self.in_len = input_len
         self.im_h, self.im_w = im_size
@@ -23,6 +30,7 @@ class DCGAN(GANBaseModel):
         self.layers = {}
 
     def _create_train_input(self):
+        """ input for training """
         self.random_vec = tf.placeholder(tf.float32, [None, self.in_len], 'input')
         self.real = tf.placeholder(
             tf.float32, 
@@ -32,10 +40,12 @@ class DCGAN(GANBaseModel):
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
     def  _create_generate_input(self):
+        """ input for sampling """
         self.random_vec = tf.placeholder(tf.float32, [None, self.in_len], 'input')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
     def create_train_model(self):
+        """ create graph for training """
         self.set_is_training(True)
         self._create_train_input()
         fake = self.generator(self.random_vec)
@@ -44,6 +54,7 @@ class DCGAN(GANBaseModel):
         self.layers['d_real'] = self.discriminator(self.real)
 
     def create_generate_model(self):
+        """ create graph for sampling """
         self.set_is_training(False)
         self._create_generate_input()
         fake = self.generator(self.random_vec)

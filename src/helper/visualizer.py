@@ -8,10 +8,17 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.patches as mpatches
 
-# import src.utils.viz as viz
 
 class Visualizer(object):
+    """ Visualizer the trained model """
     def __init__(self, model, keep_prob=1., save_path=None):
+        """ 
+        Args:
+            model (GANBaseModel): GAN model for visualizing
+            keep_prob (float): keep probability for dropout
+            save_path (str): directory for saving sampled images.
+                Nothing will be saved if None.
+        """
 
         self._save_path = save_path
         self._model = model
@@ -48,12 +55,10 @@ class Visualizer(object):
                 latent_var_list.extend(latent_var[:, pick_dim])
 
             label_list.extend(labels)
-            # print(latent_var)
 
         xs, ys = np.array(latent_var_list).T
 
         plt.figure()
-        # plt.title("round {}: {} in latent space".format(model.step, title))
         kwargs = {'alpha': 0.8}
 
         classes = set(label_list)
@@ -75,18 +80,9 @@ class Visualizer(object):
         ax.set_xlim([-3.5, 3.5])
         ax.set_ylim([-3.5, 3.5])
 
-        # if range_:
-        #     plt.xlim(*range_)
-        #     plt.ylim(*range_)
         if file_id is not None:
             fig_save_path = os.path.join(self._save_path, 'latent_{}.png'.format(file_id))
         else:
             fig_save_path = os.path.join(self._save_path, 'latent.png')
         plt.savefig(fig_save_path, bbox_inches="tight")
-        # print(fig_save_path)
-        # plt.show()
-        # if save:
-        #     title = "{}_latent_{}_round_{}_{}.png".format(
-        #         model.datetime, "_".join(map(str, model.architecture)),
-        #         model.step, name)
-        #     plt.savefig(os.path.join(outdir, title), bbox_inches="tight")
+        

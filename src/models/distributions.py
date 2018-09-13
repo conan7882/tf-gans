@@ -7,12 +7,34 @@ import numpy as np
 
 
 def random_vector(vec_shape, dist_type='gaussian'):
+    """ Sample random vector with a specific shape
+
+    Args:
+        vec_shape (int or tuple of int): output shape
+        dist_type (str): type of distribution.
+            'gaussian' - standard Gaussian distribution
+            otherwise - uniform distribution
+
+    Return:
+        random vector
+
+    """
     if dist_type == 'uniform':
         return np.random.uniform(-1, 1, size=vec_shape)
     else:
         return np.random.normal(size=vec_shape)
 
 def linear_2D_interpolate(side_size=20, interpolate_range=[-1, 1, -1, 1]):
+    """ Uniformly interpolate 2D vector 
+
+    Args:
+        side_size (int): number of samples for each side (x and y)
+        interpolate_range (list): range of interpolation
+            [min_x, max_x, min_y, max_y]
+
+    Return:
+        list of vectors with size [side_size * side_size, 2]
+    """
     assert len(interpolate_range) == 4
     nx = side_size
     ny = side_size
@@ -26,6 +48,19 @@ def linear_2D_interpolate(side_size=20, interpolate_range=[-1, 1, -1, 1]):
     return np.reshape(zs, (side_size * side_size, 2))
 
 def linear_interpolate(z1=None, z2=None, z_shape=None, n_samples=10):
+    """ Linear interpolation between two vectors
+
+    Args:
+        z1, z2: Left and right vectors to be interpolated.
+            Random vectors with each element uniformly sampled
+            from [-1, 1] will be used if None.
+        z_shape: shape of vector
+        n_samples (int): number of samples used for interpolation
+
+    Return:
+        list of interpolation vectors 
+
+    """
     if z1 is None:
         z1 = np.random.uniform(-1, 1, size=z_shape)
     else:
@@ -41,6 +76,11 @@ def linear_interpolate(z1=None, z2=None, z_shape=None, n_samples=10):
     return z
 
 def great_circle_interpolate(z1=None, z2=None, z_shape=None, n_samples=10):
+    """ Interpolation on the unit n-sphere 
+
+        borrow from:
+        https://github.com/soumith/dcgan.torch/issues/14
+    """
     if z1 is None:
         z1 = np.random.uniform(-1, 1, size=z_shape)
     else:

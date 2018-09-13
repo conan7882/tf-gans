@@ -27,17 +27,9 @@ def load_mnist(batch_size, shuffle=True, n_use_label=None, n_use_sample=None,
         n_use_sample (int): how many samples are used for training
 
     Retuns:
-        MNISTData
-
+        MNISTData dataflow
     """
-    if platform.node() == 'Qians-MacBook-Pro.local':
-        data_path = '/Users/gq/workspace/Dataset/MNIST_data/'
-    elif platform.node() == 'arostitan':
-        data_path = '/home/qge2/workspace/data/MNIST_data/'
-    elif platform.node() == 'aros04':
-        data_path = 'E://Dataset//MNIST//'
-    else:
-        raise ValueError('Data path does not setup on this platform!')
+    data_path = '/home/qge2/workspace/data/MNIST_data/'
 
     def preprocess_im(im):
         """ normalize input image to [-1., 1.] """
@@ -59,14 +51,18 @@ def load_mnist(batch_size, shuffle=True, n_use_label=None, n_use_sample=None,
     data.setup(epoch_val=0, batch_size=batch_size)
     return data
 
-
 def load_celeba(batch_size, rescale_size=64, shuffle=True):
-    if platform.node() == 'aros04':
-        data_path = 'E:/Dataset/celebA/Img/img_align_celeba_png.7z/img_align_celeba_png/'
-    elif platform.node() == 'arostitan':
-        data_path = '/home/qge2/workspace/data/celebA/'
-    else:
-        raise ValueError('Data path does not setup on this platform!')
+    """ Load CelebA data
+
+    Args:
+        batch_size (int): batch size
+        rescale_size (int): rescale image size
+        shuffle (bool): whether shuffle data or not
+
+    Retuns:
+        CelebA dataflow
+    """
+    data_path = '/home/qge2/workspace/data/celebA/'
         
     def face_preprocess(im):
         offset_h = 50
@@ -86,16 +82,7 @@ def load_celeba(batch_size, rescale_size=64, shuffle=True):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    
-    # im_path = os.path.join(datapath, '{:06d}.png'.format(5))
-    # im = scipy.misc.imread(im_path, mode='RGB')
-    # im = im[50:50+128,25:25+128, :]
-
-    # plt.figure()
-    # plt.imshow(im)
-    # plt.show()
-
-    
+        
     data = load_celeba(10)
     batch_data = data.next_batch_dict()
 
@@ -106,4 +93,3 @@ if __name__ == '__main__':
     plt.figure()
     plt.imshow(cur_im)
     plt.show()
-

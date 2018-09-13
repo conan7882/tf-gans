@@ -16,8 +16,26 @@ def identity(im):
     return im
 
 class MNISTData(object):
+    """ class for MNIST dataflow
+
+        To access the data of mini-batch, first get data of all the channels
+        through batch_data = MNISTData.next_batch_dict()
+        then use corresponding key to get label or image through
+        batch_data[key].
+    """
     def __init__(self, name, data_dir='', n_use_label=None, n_use_sample=None,
                  batch_dict_name=None, shuffle=True, pf=identity):
+        """
+        Args:
+            name (str): name of data to be read (['train', 'test', 'val'])
+            data_dir (str): directory of MNIST data
+            n_use_label (int): number of labels to be used
+            n_use_sample (int): number of samples to be used
+            batch_dict_name (list of str): list of keys for 
+                image and label of batch data
+            shuffle (bool): whether shuffle data or not
+            pf: pre-process function for image data
+        """
         assert os.path.isdir(data_dir)
         self._data_dir = data_dir
 
@@ -36,7 +54,8 @@ class MNISTData(object):
 
     def next_batch_dict(self):
         batch_data = self.next_batch()
-        data_dict = {key: data for key, data in zip(self._batch_dict_name, batch_data)}
+        data_dict = {key: data for key, data
+                     in zip(self._batch_dict_name, batch_data)}
         return data_dict
 
     def _load_files(self, name, n_use_label, n_use_sample):
@@ -62,9 +81,9 @@ class MNISTData(object):
             if magic[0] != 2051:
                 raise Exception('Invalid file: unexpected magic number.')
             n_im, rows, cols = struct.unpack('>III', f.read(12))
-            image_list = np.fromstring(f.read(n_im * rows * cols), dtype = np.uint8)
+            image_list = np.fromstring(
+                f.read(n_im * rows * cols), dtype = np.uint8)
             image_list = np.reshape(image_list, (n_im, rows, cols, 1))
-            # image_list = image_list.astype(np.float32)
             im_list = []
             if n_use_sample is not None and n_use_sample < len(label_list):
                 remain_sample = n_use_sample // 10 * 10
@@ -152,5 +171,3 @@ class MNISTData(object):
     @property
     def epochs_completed(self):
         return self._epochs_completed
-
-

@@ -7,6 +7,15 @@ import tensorflow as tf
 
 
 def generator_cross_entropy_loss(d_fake, name='generator_loss'):
+    """ cross entropy loss for generator
+
+    Args:
+        d_fake (tensor): discrimator output of fake data
+        name (str)
+
+    Return:
+        cross entropy loss of generator
+    """
     with tf.name_scope(name):
         cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
             labels=tf.ones_like(d_fake),
@@ -15,7 +24,17 @@ def generator_cross_entropy_loss(d_fake, name='generator_loss'):
         cross_entropy = tf.reduce_mean(cross_entropy)
         return cross_entropy
 
-def discriminator_cross_entropy_loss(d_fake, d_real, name='discrimator_loss'):
+def discriminator_cross_entropy_loss(d_fake, d_real, name='discriminator_loss'):
+    """ cross entropy loss for discriminator
+
+    Args:
+        d_fake (tensor): discrimator output of fake data
+        d_real (tensor): discrimator output of real data
+        name (str)
+
+    Return:
+        cross entropy loss of discriminator
+    """
     with tf.name_scope(name):
         loss_real = tf.nn.sigmoid_cross_entropy_with_logits(
             labels=tf.ones_like(d_real),
@@ -29,6 +48,17 @@ def discriminator_cross_entropy_loss(d_fake, d_real, name='discrimator_loss'):
         return d_loss
 
 def generator_least_square_loss(d_fake_logits, c=1., name='generator_loss'):
+    """ least square loss for generator
+
+    Args:
+        d_fake_logits (tensor): discrimator output of fake data
+        c (float): the value that generator wants discriminator
+            to believe for fake data
+        name (str)
+
+    Return:
+        least square loss of generator
+    """
     with tf.name_scope(name):
         # d_fake = tf.sigmoid(d_fake_logits)
         d_fake = d_fake_logits
@@ -37,6 +67,18 @@ def generator_least_square_loss(d_fake_logits, c=1., name='generator_loss'):
 
 def discriminator_least_square_loss(d_fake_logits, d_real_logits,
                                     a=0., b=1., name='discriminator_loss'):
+    """ least square loss for discriminator
+
+    Args:
+        d_fake_logits (tensor): discrimator output of fake data
+        d_real_logits (tensor): discrimator output of real data
+        a (float): labels for fake data
+        b (float): labels for real data
+        name (str)
+
+    Return:
+        least square loss of discriminator
+    """
     with tf.name_scope(name):
         # d_fake = tf.sigmoid(d_fake_logits)
         # d_real = tf.sigmoid(d_real_logits)
@@ -47,6 +89,12 @@ def discriminator_least_square_loss(d_fake_logits, d_real_logits,
         return 0.5 * (loss_fake + loss_real)
 
 def l2_loss(x, y):
+    """ l2 loss """
     with tf.name_scope('l2_loss'):
         # return tf.reduce_mean(tf.sqrt(tf.reduce_sum((x - y) ** 2)))
         return tf.reduce_mean((x - y) ** 2)
+
+def l1_loss(x, y):
+    """ l1 loss """
+    with tf.name_scope('l1_loss'):
+        return tf.reduce_mean(tf.abs(x - y))

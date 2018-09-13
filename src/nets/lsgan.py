@@ -14,7 +14,14 @@ import src.models.losses as losses
 INIT_W = tf.random_normal_initializer(stddev=0.02)
 
 class LSGAN(GANBaseModel):
+    """ class for least squares GAN """
     def __init__(self, input_len, im_size, n_channels):
+        """
+        Args:
+            input_len (int): length of input random vector
+            im_size (int or list with length 2): size of generate image 
+            n_channels (int): number of image channels
+        """
         im_size = L.get_shape2D(im_size)
         self.in_len = input_len
         self.im_h, self.im_w = im_size
@@ -23,6 +30,7 @@ class LSGAN(GANBaseModel):
         self.layers = {}
 
     def _create_train_input(self):
+        """ input for training """
         self.random_vec = tf.placeholder(tf.float32, [None, self.in_len], 'input')
         self.real = tf.placeholder(
             tf.float32, 
@@ -32,22 +40,25 @@ class LSGAN(GANBaseModel):
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
     def  _create_generate_input(self):
+        """ input for sampling """
         self.random_vec = tf.placeholder(tf.float32, [None, self.in_len], 'input')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
     def create_train_model(self):
+        """ create graph for training """
         self.set_is_training(True)
         self._create_train_input()
         fake = self.generator(self.random_vec)
-        self.layers['generate'] = (fake + 1) / 2.
+        self.layers['generate'] = (fake + 1) / 2. # range [-1, 1]
         self.layers['d_fake'] = self.discriminator(fake)
         self.layers['d_real'] = self.discriminator(self.real)
 
     def create_generate_model(self):
+        """ create graph for sampling """
         self.set_is_training(False)
         self._create_generate_input()
         fake = self.generator(self.random_vec)
-        self.layers['generate'] = (fake + 1) / 2.
+        self.layers['generate'] = (fake + 1) / 2. # range [-1, 1]
 
     def _get_generator_loss(self):
         return losses.generator_least_square_loss(self.layers['d_fake'])
@@ -58,17 +69,13 @@ class LSGAN(GANBaseModel):
 
     def _get_generator_optimizer(self):
         return tf.train.AdamOptimizer(self.lr, beta1=0.5)
-        # return tf.train.RMSPropOptimizer(self.lr)
 
     def _get_discriminator_optimizer(self):
         return tf.train.AdamOptimizer(self.lr, beta1=0.5)
-        # return tf.train.RMSPropOptimizer(self.lr)
 
     def generator(self, inputs):
         with tf.variable_scope('generator', reuse=tf.AUTO_REUSE):
             self.layers['cur_input'] = inputs
-            # final_dim = 64
-            # filter_size = 5
             b_size = tf.shape(inputs)[0]
 
             d_height_2, d_width_2 = L.deconv_size(self.im_h, self.im_w)
@@ -142,5 +149,4 @@ class LSGAN(GANBaseModel):
                 'generate_image',
                 tf.cast(self.layers['generate'], tf.float32),
                 collections=['train'])
-        
         return tf.summary.merge_all(key='train')

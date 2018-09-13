@@ -6,8 +6,23 @@
 import tensorflow as tf
 import src.models.layers as L
 
+
 def DCGAN_discriminator(inputs, init_w, is_training, layer_dict,
                         start_depth=64, wd=0, name='DCGAN_discriminator'):
+    """ DCGAN discriminator
+
+    Args:
+        inputs (tensor): input tensor in batch
+        init_w: initializer for weights
+        is_training (bool): whether for training or not
+        layer_dict (dictionary): dictionary of model
+        start_depth (int): number of features of the first conv layer
+        wd: weight decay weight
+        name (str)
+
+    Return:
+        tensor of discriminator output 
+    """
     with tf.variable_scope(name):
         layer_dict['cur_input'] = inputs
         # start_depth = 64
@@ -37,6 +52,23 @@ def DCGAN_discriminator(inputs, init_w, is_training, layer_dict,
 
 def BEGAN_encoder(inputs, layer_dict, n_code=64, start_depth=64, nl=tf.nn.relu,
                   init_w=None, is_training=True, bn=False, wd=0, name='encoder'):
+    """ BEGAN encoder
+
+    Args:
+        inputs (tensor): input tensor in batch
+        layer_dict (dictionary): dictionary of model
+        n_code (int): dimension of code
+        start_depth (int): number of features of the first conv layer
+        nl: nonlinearity of output
+        init_w: initializer for weights
+        is_training (bool): whether for training or not
+        bn (bool): whether apply batch normalization or not
+        wd: weight decay weight
+        name (str)
+
+    Return:
+        tensor of encode code 
+    """
     with tf.variable_scope(name):
         layer_dict['cur_input'] = inputs
         filter_size = 3
@@ -72,6 +104,23 @@ def BEGAN_decoder(inputs, layer_dict,
                   start_size=8, n_feature=64, n_channle=3,
                   init_w=None, is_training=True, bn=False, wd=0,
                   name='BEGAN_decoder'):
+    """ BEGAN decoder also used as generator
+
+    Args:
+        inputs (tensor): input tensor in batch
+        layer_dict (dictionary): dictionary of model
+        start_size (int): side size of the first 2d tensor for conv
+        n_feature (int): number of features of the first conv layer
+        n_channle (int): number of channels of output image
+        init_w: initializer for weights
+        is_training (bool): whether for training or not
+        bn (bool): whether apply batch normalization or not
+        wd: weight decay weight
+        name (str)
+
+    Return:
+        tensor of decode image 
+    """
 
     with tf.variable_scope(name):
         layer_dict['cur_input'] = inputs
@@ -113,6 +162,23 @@ def LSGAN_generator(inputs, layer_dict,
                     im_size, n_channle=3,
                     init_w=None, keep_prob=1., wd=0,
                     is_training=True, bn=False, name='LSGAN_generator'):
+    """ LSGAN generator
+
+    Args:
+        inputs (tensor): input tensor in batch
+        layer_dict (dictionary): dictionary of model
+        im_size (int): output image size
+        n_channle (int): number of channels of output image
+        init_w: initializer for weights
+        keep_prob (float): keep probability for dropout
+        wd: weight decay weight
+        is_training (bool): whether for training or not
+        bn (bool): whether apply batch normalization or not
+        name (str)
+
+    Return:
+        tensor of generate image 
+    """
     with tf.variable_scope(name):
         layer_dict['cur_input'] = inputs
         b_size = tf.shape(inputs)[0]
@@ -166,4 +232,3 @@ def LSGAN_generator(inputs, layer_dict,
                              bn=False, nl=tf.tanh, name='dconv7')
 
             return layer_dict['cur_input']
-
