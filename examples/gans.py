@@ -142,9 +142,10 @@ def train_type_2():
 
     # load dataset
     if FLAGS.dataset == 'celeba':
-        train_data = loader.load_celeba(FLAGS.bsize)
-        im_size = 64
+        im_size = 128
         n_channels = 3
+        train_data = loader.load_celeba(FLAGS.bsize, rescale_size=im_size)
+        
     else:
         train_data = loader.load_mnist(FLAGS.bsize)
         im_size = 28

@@ -88,7 +88,13 @@ def BEGAN_encoder(inputs, layer_dict, n_code=64, start_depth=64, nl=tf.nn.relu,
             L.conv(out_dim=start_depth * 3, name='conv4', stride=2)
 
             L.conv(out_dim=start_depth * 3, name='conv5', stride=1)
-            L.conv(out_dim=start_depth * 3, name='conv6', stride=2)
+            L.conv(out_dim=start_depth * 4, name='conv6', stride=2)
+
+            L.conv(out_dim=start_depth * 4, name='conv7', stride=1)
+            L.conv(out_dim=start_depth * 4, name='conv8', stride=2)
+
+            L.conv(out_dim=start_depth * 4, name='conv9', stride=1)
+            L.conv(out_dim=start_depth * 4, name='conv10', stride=1)
 
             L.linear(out_dim=n_code,
                      layer_dict=layer_dict,
@@ -98,6 +104,76 @@ def BEGAN_encoder(inputs, layer_dict, n_code=64, start_depth=64, nl=tf.nn.relu,
                      bn=bn,
                      is_training=is_training,
                      name='Linear')
+            return layer_dict['cur_input']
+
+def BEGAN_NN_decoder(inputs, layer_dict,
+                  start_size=8, n_feature=64, n_channle=3,
+                  init_w=None, is_training=True, bn=False, wd=0,
+                  name='BEGAN_decoder'):
+    """ BEGAN decoder/generator upsampling using nearest neighborhood
+
+    Args:
+        inputs (tensor): input tensor in batch
+        layer_dict (dictionary): dictionary of model
+        start_size (int): side size of the first 2d tensor for conv
+        n_feature (int): number of features of the first conv layer
+        n_channle (int): number of channels of output image
+        init_w: initializer for weights
+        is_training (bool): whether for training or not
+        bn (bool): whether apply batch normalization or not
+        wd: weight decay weight
+        name (str)
+
+    Return:
+        tensor of decode image 
+    """
+
+    with tf.variable_scope(name):
+        layer_dict['cur_input'] = inputs
+        filter_size = 3
+
+        # print(layer_dict['cur_input'])
+
+        h0 = L.linear(out_dim=start_size*start_size*n_feature,
+                      layer_dict=layer_dict,
+                      init_w=init_w, wd=wd,
+                      bn=bn, is_training=is_training,
+                      # nl=tf.nn.relu
+                      name='Linear')
+        h0 = tf.reshape(h0, [-1, start_size, start_size, n_feature])
+        layer_dict['cur_input'] = h0
+
+        arg_scope = tf.contrib.framework.arg_scope
+        with arg_scope([L.conv, L.transpose_conv], 
+                        filter_size=filter_size, layer_dict=layer_dict,
+                        nl=tf.nn.relu,
+                        init_w=init_w, wd=wd, is_training=is_training, bn=bn):
+
+            L.conv(out_dim=n_feature, stride=1, name='conv1')
+            L.conv(out_dim=n_feature, stride=1, name='conv2')
+            L.NN_upsampling(layer_dict=layer_dict, factor=2, name='up1')
+
+            L.conv(out_dim=2*n_feature, stride=1, name='conv3')
+            L.conv(out_dim=n_feature, stride=1, name='conv4')
+            # L.transpose_conv(out_dim=n_feature, stride=2, name='dconv4')
+            L.NN_upsampling(layer_dict=layer_dict, factor=2, name='up2') 
+
+            L.conv(out_dim=2*n_feature, stride=1, name='conv5')
+            L.conv(out_dim=n_feature, stride=1, name='conv6')
+            # L.transpose_conv(out_dim=n_feature, stride=2, name='dconv6')
+            L.NN_upsampling(layer_dict=layer_dict, factor=2, name='up3') 
+
+            L.conv(out_dim=2*n_feature, stride=1, name='conv7')
+            L.conv(out_dim=n_feature, stride=1, name='conv8')
+
+            L.NN_upsampling(layer_dict=layer_dict, factor=2, name='up4') 
+
+            L.conv(out_dim=2*n_feature, stride=1, name='conv9')
+            L.conv(out_dim=n_feature, stride=1, name='conv10')
+
+            L.conv(out_dim=n_channle, stride=1, name='decoder_out',
+                   nl=tf.tanh, bn=False) 
+
             return layer_dict['cur_input']
 
 def BEGAN_decoder(inputs, layer_dict,
@@ -150,8 +226,10 @@ def BEGAN_decoder(inputs, layer_dict,
             L.transpose_conv(out_dim=n_feature, stride=2, name='dconv4') 
 
             L.conv(out_dim=n_feature, stride=1, name='conv5')
-            # L.conv(out_dim=n_feature, stride=1, name='conv6')
             L.transpose_conv(out_dim=n_feature, stride=2, name='dconv6') 
+
+            # L.conv(out_dim=n_feature, stride=1, name='conv7')
+            # L.transpose_conv(out_dim=n_feature, stride=2, name='dconv8') 
 
             L.conv(out_dim=n_channle, stride=1, name='decoder_out',
                    nl=tf.tanh, bn=False) 

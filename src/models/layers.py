@@ -364,3 +364,19 @@ def drop_out(layer_dict, is_training, inputs=None, keep_prob=0.5):
         layer_dict['cur_input'] = inputs
     return layer_dict['cur_input']
 
+def NN_upsampling(layer_dict, inputs=None, factor=2, name='NN_upsampling'):
+    """ upsampling using nearest neighborhood """
+    if inputs is None:
+        inputs = layer_dict['cur_input']
+    layer_dict['cur_input'] = inputs
+
+    in_shape = tf.shape(inputs)
+    factor = int(factor)
+    new_h = factor * in_shape[1]
+    new_w = factor * in_shape[2]
+
+    layer_dict['cur_input'] = tf.image.resize_nearest_neighbor(
+                inputs, [new_h, new_w], align_corners=False, name=name)
+
+    return layer_dict['cur_input']
+

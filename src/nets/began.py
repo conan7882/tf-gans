@@ -13,12 +13,12 @@ import src.models.distributions as distributions
 import src.utils.viz as viz
 
 
-INIT_W = tf.random_normal_initializer(stddev=0.02)
+INIT_W = tf.random_normal_initializer(stddev=0.002)
 BN = True
 
 class BEGAN(GANBaseModel):
     """ class of BEGAN """
-    def __init__(self, input_len, im_size, n_channels, gamma=0.7, lambda_k=1e-3):
+    def __init__(self, input_len, im_size, n_channels, gamma=0.5, lambda_k=1e-3):
         """
         Args:
             input_len (int): length of input random vector
@@ -133,11 +133,11 @@ class BEGAN(GANBaseModel):
     def generator(self, inputs):
         with tf.variable_scope('generator', reuse=tf.AUTO_REUSE):
 
-            modules.BEGAN_decoder(
+            modules.BEGAN_NN_decoder(
                 inputs=inputs,
                 layer_dict=self.layers,
                 start_size=self._decoder_start_size,
-                n_feature=64,
+                n_feature=128,
                 n_channle=self.n_channels,
                 init_w=INIT_W,
                 is_training=self.is_training,
@@ -167,7 +167,7 @@ class BEGAN(GANBaseModel):
                 inputs=inputs,
                 layer_dict=self.layers,
                 n_code=self.n_code,
-                start_depth=64,
+                start_depth=128,
                 init_w=INIT_W,
                 is_training=self.is_training,
                 bn=BN,
@@ -184,11 +184,11 @@ class BEGAN(GANBaseModel):
             #     is_training=self.is_training,
             #     bn=BN)
 
-            decoder_out = modules.BEGAN_decoder(
+            decoder_out = modules.BEGAN_NN_decoder(
                 inputs=encoder_out,
                 layer_dict=self.layers,
                 start_size=self._decoder_start_size,
-                n_feature=64,
+                n_feature=128,
                 n_channle=self.n_channels,
                 init_w=INIT_W,
                 is_training=self.is_training,
@@ -224,7 +224,7 @@ class BEGAN(GANBaseModel):
         display_name_list = ['d_loss', 'g_loss', 'L_fake', 'L_real']
         cur_summary = None
 
-        lr = init_lr * (0.95**self.epoch_id)
+        lr = init_lr * (0.9**self.epoch_id)
 
         cur_epoch = train_data.epochs_completed
         step = 0
@@ -240,10 +240,12 @@ class BEGAN(GANBaseModel):
             batch_data = train_data.next_batch_dict()
             im = batch_data['im']
 
+            random_vec = distributions.random_vector(
+                (len(im), self.n_code), dist_type='uniform')
+
             # train discriminator
             for i in range(int(n_d_train)):
-                random_vec = distributions.random_vector(
-                    (len(im), self.n_code), dist_type='uniform')
+                
                 _, d_loss = sess.run(
                     [self.train_d_op, self.d_loss_op], 
                     feed_dict={self.real: im,
@@ -253,8 +255,8 @@ class BEGAN(GANBaseModel):
 
             # train generator
             for i in range(int(n_g_train)):
-                random_vec = distributions.random_vector(
-                    (len(im), self.n_code), dist_type='uniform')
+                # random_vec = distributions.random_vector(
+                #     (len(im), self.n_code), dist_type='uniform')
                 _, g_loss = sess.run(
                     [self.train_g_op, self.g_loss_op], 
                     feed_dict={
@@ -263,8 +265,8 @@ class BEGAN(GANBaseModel):
                                self.random_vec: random_vec})
 
             # update k
-            random_vec = distributions.random_vector(
-                    (len(im), self.n_code), dist_type='uniform')
+            # random_vec = distributions.random_vector(
+            #         (len(im), self.n_code), dist_type='uniform')
             _, L_fake, L_real = sess.run(
                 [self.update_op, self.L_fake, self.L_real],
                 feed_dict={self.real: im,
