@@ -110,6 +110,7 @@ def linear(out_dim,
            name='Linear',
            nl=tf.identity,
            add_summary=False):
+
     with tf.variable_scope(name):
         if inputs is None:
             assert layer_dict is not None
