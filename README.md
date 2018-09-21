@@ -1,14 +1,14 @@
 # TensorFlow implementation of Generative Adversarial Networks
 - This repository contains tensorflow implementations of GANs inspired by several other repositories of GANs or generative models ([generative-models](https://github.com/wiseodd/generative-models), [tensorflow-generative-model-collections](https://github.com/hwalsuklee/tensorflow-generative-model-collections)).
-- The aim of creatation of this repository is for me to learn and experiment on various GANs.
-- Architectures
+- The aim of this repository is for me to learn and experiment on various GANs.
+- I will try to keep the architecture of each GAN the same as the original paper.
 
 # Models
-*Name* | *Description* |* * |* * |
+*Name* | *Description* | *Paper* | *Details* |
 :--: | :---: | :--: | :---: | 
-DCGAN |
-LSGAN |
-BEGAN |
+DCGAN | | [paper](https://arxiv.org/abs/1511.06434) | [details](docs/dcgan/)
+LSGAN | | [paper](https://arxiv.org/abs/1611.04076) | [details](docs/lsgan/)
+BEGAN | | [paper](https://arxiv.org/abs/1703.10717) | [details](docs/began/)
 
 # Usage
 The script [`example/gans.py`](example/gans.py)
