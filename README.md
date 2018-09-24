@@ -3,6 +3,17 @@
 - The aim of this repository is for me to learn and experiment on various GANs.
 - I will try to keep the architecture of each GAN the same as the original paper.
 
+## Requirements
+- Python 3.3+
+- [Tensorflow 1.10+](https://www.tensorflow.org/)
+- [TensorFlow Probability](https://www.tensorflow.org/probability/)
+- [numpy](http://www.numpy.org/)
+- [Scipy](https://www.scipy.org/)
+- [Matplotlib](https://matplotlib.org/)
+- [skimage]
+- [pillow]
+
+
 # Models
 *Name* | *Description* | *Paper* | *Details* |
 :--: | :---: | :--: | :---: | 

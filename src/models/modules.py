@@ -8,6 +8,87 @@ import tensorflow_probability as tfp
 import src.models.layers as L
 
 
+def InfoGAN_MNIST_generator(
+        inputs, init_w, is_training, layer_dict,
+        im_h, im_w, n_channels,
+        final_dim=64, filter_size=4, wd=0, keep_prob=1.0,
+        name='InfoGAN_MNIST_generator'):
+
+    """ InfoGAN generator for MNIST
+
+    Args:
+        inputs (tensor): input tensor in batch
+        init_w: initializer for weights
+        is_training (bool): whether for training or not
+        layer_dict (dictionary): dictionary of model
+        im_h, im_w, n_channel (int): dimemtion of generate image
+        final_dim (int): number of features of the last conv layer
+        filter_size (int): filter size of convolutional layers
+        wd: weight decay weight
+        keep_prob (float): keep probablity for dropout
+        name (str)
+
+    Return:
+        tensor of discriminator output 
+    """
+
+    with tf.variable_scope(name):
+        layer_dict['cur_input'] = inputs
+        b_size = tf.shape(inputs)[0]
+
+        d_height_2, d_width_2 = L.deconv_size(im_h, im_w)
+        d_height_4, d_width_4 = L.deconv_size(d_height_2, d_width_2)
+        d_height_8, d_width_8 = L.deconv_size(d_height_4, d_width_4)
+        d_height_16, d_width_16 = L.deconv_size(d_height_8, d_width_8)
+
+        L.linear(out_dim=1024,
+                 layer_dict=layer_dict,
+                 init_w=init_w,
+                 wd=wd,
+                 bn=True,
+                 is_training=is_training,
+                 name='fc1',
+                 nl=tf.nn.relu)
+
+        L.linear(out_dim=d_height_16 * d_height_16 * final_dim * 8,
+                 layer_dict=layer_dict,
+                 init_w=init_w,
+                 wd=wd,
+                 bn=True,
+                 is_training=is_training,
+                 name='fc2',
+                 nl=tf.nn.relu)
+
+        layer_dict['cur_input'] = tf.reshape(
+            layer_dict['cur_input'],
+            [-1, d_height_16, d_height_16, final_dim * 8])
+
+        arg_scope = tf.contrib.framework.arg_scope
+        with arg_scope([L.transpose_conv], 
+                       filter_size=filter_size, layer_dict=layer_dict,
+                       init_w=init_w, wd=wd, is_training=is_training):
+
+            output_shape = [b_size, d_height_8, d_height_8, final_dim * 4]
+            L.transpose_conv(out_dim=final_dim * 4, out_shape=output_shape,
+                             bn=True, nl=tf.nn.relu, name='dconv3')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+
+            output_shape = [b_size, d_height_4, d_width_4, final_dim * 2]
+            L.transpose_conv(out_dim=final_dim * 2, out_shape=output_shape,
+                             bn=True, nl=tf.nn.relu, name='dconv1')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+
+            output_shape = [b_size, d_height_2, d_width_2, final_dim]
+            L.transpose_conv(out_dim=final_dim, out_shape=output_shape,
+                             bn=True, nl=tf.nn.relu, name='dconv2')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+
+            output_shape = [b_size, im_h, im_w, n_channels]
+            L.transpose_conv(out_dim=n_channels, out_shape=output_shape,
+                             bn=False, nl=tf.tanh, name='dconv_out')
+
+            return layer_dict['cur_input']
+
 def DCGAN_generator(inputs, init_w, is_training, layer_dict,
                     im_h, im_w, n_channels,
                     final_dim=64, filter_size=5, wd=0, keep_prob=1.0,
@@ -30,7 +111,7 @@ def DCGAN_generator(inputs, init_w, is_training, layer_dict,
         tensor of discriminator output 
     """
 
-    with tf.variable_scope('DCGAN_generator'):
+    with tf.variable_scope(name):
         layer_dict['cur_input'] = inputs
         # final_dim = 64
         # filter_size = 5
@@ -43,8 +124,8 @@ def DCGAN_generator(inputs, init_w, is_training, layer_dict,
 
         L.linear(out_dim=d_height_16 * d_width_16 * final_dim * 8,
                  layer_dict=layer_dict,
-                 init_w=INIT_W,
-                 wd=0,
+                 init_w=init_w,
+                 wd=wd,
                  bn=True,
                  is_training=is_training,
                  name='Linear',
@@ -56,7 +137,7 @@ def DCGAN_generator(inputs, init_w, is_training, layer_dict,
         arg_scope = tf.contrib.framework.arg_scope
         with arg_scope([L.transpose_conv], 
                        filter_size=filter_size, layer_dict=layer_dict,
-                       init_w=INIT_W, wd=0, is_training=is_training):
+                       init_w=init_w, wd=wd, is_training=is_training):
             output_shape = [b_size, d_height_8, d_width_8, final_dim * 4]
             L.transpose_conv(out_dim=final_dim * 4, out_shape=output_shape,
                              bn=True, nl=tf.nn.relu, name='dconv1')
@@ -398,22 +479,34 @@ def categorical_distribution_layer(inputs, layer_dict, n_class,
         name (str)
 
     Return:
-        mean and covariance of Gaussian 
+        
     """
     with tf.variable_scope(name):
+        L.linear(
+            out_dim=128,
+            layer_dict=layer_dict,
+            inputs=inputs,
+            init_w=init_w,
+            nl=L.leaky_relu,
+            # init_b=tf.zeros_initializer(),
+            wd=wd,
+            bn=True,
+            is_training=is_training,
+            name='fc1',
+            add_summary=False)
         out = L.linear(
             out_dim=n_class,
             layer_dict=layer_dict,
-            inputs=inputs,
+            # inputs=inputs,
             init_w=init_w,
             # init_b=tf.zeros_initializer(),
             wd=wd,
             bn=False,
             is_training=is_training,
-            name='Linear',
+            name='fc2',
             add_summary=False)
 
-        return tf.nn.softmax(out)
+        return out #[bsize, n_class]
 
 def diagonal_Gaussian_layer(inputs, layer_dict, n_dim,
                             init_w, wd, is_training,
@@ -452,21 +545,24 @@ def diagonal_Gaussian_layer(inputs, layer_dict, n_dim,
 
 def sample_diagonal_Gaussian_reparameterization_trick(mean, sigma, n_dim, b_size,
                                                       name='sample_diagonal_Gaussian_reparameterization_trick'):
-    """ Sample from a diagonal Gaussian distribution using reparameterization trick
+    """ Batch sample from a diagonal Gaussian distribution using reparameterization trick
 
     Args:
-        mean (float): mean of the diagonal Gaussian distribution
-        sigma (float): variance of the diagonal Gaussion
+        mean (float): mean of the diagonal Gaussian distribution in batch
+        sigma (float): variance of the diagonal Gaussion in batch
         n_dim (int): dimensionality of Gaussian
         b_size (int): batch size
         name (str)
 
     Return:
-        samples drawn from the diagonal Gaussian distribution
+        samples drawn from the diagonal Gaussian distribution [bsize n_dim]
     """
     with tf.name_scope(name):
-        mean_list = [0.0 for i in range(0, n_code)]
-        std_list = [1.0 for i in range(0, n_code)]
+        # mean_list = [0.0 for i in range(0, n_code)]
+        # std_list = [1.0 for i in range(0, n_code)]
+
+        mean_list = tf.zeros_like(mean)
+        std_list = tf.ones_like(mean)
         mvn = tfp.distributions.MultivariateNormalDiag(
             loc=mean_list,
             scale_diag=std_list)
@@ -475,3 +571,20 @@ def sample_diagonal_Gaussian_reparameterization_trick(mean, sigma, n_dim, b_size
 
         return samples
 
+def evaluate_log_diagonal_Gaussian_pdf(mean, sigma, samples, name='evaluate_diagonal_Gaussian_pdf'):
+    """ Batch evaluate diagonal Gaussian distribution
+
+    Args:
+        mean (float): mean of the diagonal Gaussian distribution in batch
+        sigma (float): variance of the diagonal Gaussion in batch
+        samples: batch samples drawn from the diagonal Gaussian distribution
+
+    Return:
+        batch tensor [bsize n_dim]
+    """
+    with tf.name_scope(name):
+        dist = tfp.distributions.MultivariateNormalDiag(
+            loc=mean,
+            scale_diag=sigma)
+
+        return dist.log_prob(samples)

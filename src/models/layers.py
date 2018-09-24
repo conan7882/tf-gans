@@ -59,7 +59,7 @@ def batch_flatten(x):
         return tf.reshape(x, [-1, int(np.prod(shape))])
     return tf.reshape(x, tf.stack([tf.shape(x)[0], -1]))
 
-def softplus(inputs, name):
+def softplus(inputs, name='softplus'):
     return tf.log(1 + tf.exp(inputs), name=name)
 
 def softmax(logits, axis=-1, name='softmax'):

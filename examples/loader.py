@@ -6,7 +6,8 @@
 import os
 import sys
 import platform
-import scipy.misc
+# import scipy.misc
+import skimage.transform
 import numpy as np
 
 sys.path.append('../')
@@ -35,7 +36,8 @@ def load_mnist(batch_size, shuffle=True, n_use_label=None, n_use_sample=None,
         """ normalize input image to [-1., 1.] """
         if rescale_size is not None:
             im = np.squeeze(im, axis=-1)
-            im = scipy.misc.imresize(im, [rescale_size, rescale_size])
+            im = skimage.transform.resize(
+                im, [rescale_size, rescale_size], mode='constant', preserve_range=True)
             im = np.expand_dims(im, axis=-1)
         im = im / 255. * 2. - 1.
 
@@ -71,7 +73,8 @@ def load_celeba(batch_size, rescale_size=64, shuffle=True):
         crop_w = 128
         im = im[offset_h: offset_h + crop_h,
                 offset_w: offset_w + crop_w, :]
-        im = scipy.misc.imresize(im, [rescale_size, rescale_size])
+        im = skimage.transform.resize(
+            im, [rescale_size, rescale_size], mode='constant', preserve_range=True)
         im = im / 255. * 2. - 1.
         return np.clip(im, -1., 1.)
 

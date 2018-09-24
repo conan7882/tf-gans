@@ -98,3 +98,13 @@ def l1_loss(x, y):
     """ l1 loss """
     with tf.name_scope('l1_loss'):
         return tf.reduce_mean(tf.abs(x - y))
+
+def max_log_likelihood_loss(probability, name='max_log_likelihood_loss'):
+    with tf.name_scope(name):
+        cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
+            labels=tf.ones_like(probability),
+            logits=probability,
+            name='cross_entropy')
+        cross_entropy = tf.reduce_sum(cross_entropy, axis=-1)
+        return tf.reduce_mean(cross_entropy)
+

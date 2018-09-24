@@ -15,6 +15,7 @@ sys.path.append('../')
 from src.nets.dcgan import DCGAN
 from src.nets.lsgan import LSGAN
 from src.nets.began import BEGAN
+from src.nets.infogan import infoGAN
 from src.helper.trainer import Trainer
 from src.helper.generator import Generator
 import loader as loader
@@ -56,7 +57,68 @@ def get_args():
     parser.add_argument('--nd', type=int, default=1,
                         help='number discriminator training each step')
 
+    parser.add_argument('--w_mutual', type=float, default=1.0,
+                        help='')
+
     return parser.parse_args()
+
+def test():
+
+    save_path = os.path.join(SAVE_PATH, 'test')
+    save_path += '/'
+
+    # load dataset
+    if FLAGS.dataset == 'celeba':
+        im_size = 32
+        n_channels = 3
+        n_continuous = 0
+        n_discrete = 10
+        cat_n_class_list = [10 for i in range(n_discrete)]
+
+        train_data = loader.load_celeba(FLAGS.bsize, rescale_size=im_size)
+    else:
+        im_size = 28
+        n_channels = 1
+        n_continuous = 4
+        n_discrete = 1
+        cat_n_class_list = [10]
+
+        train_data = loader.load_mnist(FLAGS.bsize)
+        
+    train_model = infoGAN(
+        input_len=FLAGS.zlen, im_size=im_size, n_channels=n_channels,
+        cat_n_class_list=cat_n_class_list,
+        n_continuous=n_continuous, n_discrete=n_discrete,
+        mutual_info_weight=FLAGS.w_mutual)
+    train_model.create_train_model()
+
+    generate_model = infoGAN(
+        input_len=FLAGS.zlen, im_size=im_size, n_channels=n_channels,
+        cat_n_class_list=cat_n_class_list,
+        n_continuous=n_continuous, n_discrete=n_discrete)
+    generate_model.create_generate_model()
+
+    sessconfig = tf.ConfigProto()
+    sessconfig.gpu_options.allow_growth = True
+    with tf.Session(config=sessconfig) as sess:
+        writer = tf.summary.FileWriter(save_path)
+        saver = tf.train.Saver()
+        sess.run(tf.global_variables_initializer())
+        writer.add_graph(sess.graph)
+        for epoch_id in range(FLAGS.maxepoch):
+            train_model.train_epoch(
+                sess, train_data, init_lr=FLAGS.lr,
+                n_g_train=FLAGS.ng, n_d_train=FLAGS.nd, keep_prob=1.0,
+                summary_writer=writer)
+            for vary_discrete_id in range(n_discrete):
+                generate_model.vary_discrete_sampling(
+                    sess, vary_discrete_id=vary_discrete_id, plot_size=10,
+                    file_id=epoch_id, save_path=save_path)
+            for cont_code_id in range(n_continuous):
+                generate_model.interp_cont_sampling(
+                    sess, n_interpolation=10, cont_code_id=cont_code_id,
+                    vary_discrete_id=0,
+                    keep_prob=1., save_path=save_path, file_id=epoch_id)
 
 def train():
     if FLAGS.gan_type == 'lsgan' or FLAGS.gan_type == 'dcgan':
@@ -181,10 +243,13 @@ def train_type_2():
             saver.save(sess,'{}gan-{}-epoch-{}'.format(save_path, FLAGS.gan_type, epoch_id))
         saver.save(sess, '{}gan-{}-epoch-{}'.format(save_path, FLAGS.gan_type, epoch_id))
 
+
 if __name__ == "__main__":
     FLAGS = get_args()
 
     if FLAGS.train:
         train()
+    if FLAGS.test:
+        test()
 
 

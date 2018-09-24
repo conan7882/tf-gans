@@ -6,9 +6,19 @@
 import os
 from datetime import datetime
 import numpy as np
-import scipy.misc
+import imageio
+# import scipy.misc
 
 import src.utils.utils as utils
+
+def vec2onehot(vec, n_class):
+    vec = np.array(vec)
+    one_hot = np.zeros((len(vec), n_class))
+    one_hot[np.arange(len(vec)), vec] = 1
+    return one_hot
+    # a = np.array([1, 0, 3])
+    # b = np.zeros((3, 4))
+    # b[np.arange(3), a] = 1
 
 def identity(inputs):
     return inputs
@@ -55,11 +65,11 @@ def load_image(im_path, read_channel=None, pf=identity):
     """
 
     if read_channel is None:
-        im = scipy.misc.imread(im_path)
+        im = imageio.imread(im_path)
     elif read_channel == 3:
-        im = scipy.misc.imread(im_path, mode='RGB')
+        im = imageio.imread(im_path, as_gray=False, pilmode="RGB")
     else:
-        im = scipy.misc.imread(im_path, flatten=True)
+        im = imageio.imread(im_path, as_gray=True)
 
     if len(im.shape) < 3:
         im = pf(im)
