@@ -308,20 +308,26 @@ class infoGAN(GANBaseModel):
             random_vec = distributions.random_vector(
                 (len(im), self.n_code), dist_type='uniform')
 
-            code_discrete = []
-            discrete_label = []
-            for i in range(self.n_discrete):
-                n_class = self.cat_n_class_list[i]
-                cur_code = np.random.choice(n_class, (len(im)))
-                cur_onehot_code = dfutils.vec2onehot(cur_code, n_class)
-                try:
-                    code_discrete = np.concatenate((code_discrete, cur_onehot_code), axis=-1)
-                    discrete_label = np.concatenate(
-                        (discrete_label, np.expand_dims(cur_code, axis=-1)),
-                        axis=-1)
-                except ValueError:
-                    code_discrete = cur_onehot_code
-                    discrete_label = np.expand_dims(cur_code, axis=-1)
+            # code_discrete = []
+            # discrete_label = []
+            if self.n_discrete <= 0:
+                code_discrete = np.zeros((len(im), 0))
+                discrete_label = np.zeros((len(im), self.n_discrete))
+            else:
+                code_discrete = []
+                discrete_label = []
+                for i in range(self.n_discrete):
+                    n_class = self.cat_n_class_list[i]
+                    cur_code = np.random.choice(n_class, (len(im)))
+                    cur_onehot_code = dfutils.vec2onehot(cur_code, n_class)
+                    try:
+                        code_discrete = np.concatenate((code_discrete, cur_onehot_code), axis=-1)
+                        discrete_label = np.concatenate(
+                            (discrete_label, np.expand_dims(cur_code, axis=-1)),
+                            axis=-1)
+                    except ValueError:
+                        code_discrete = cur_onehot_code
+                        discrete_label = np.expand_dims(cur_code, axis=-1)
 
             code_cont = distributions.random_vector(
                 (len(im), self.n_continuous), dist_type='uniform')
@@ -394,8 +400,51 @@ class infoGAN(GANBaseModel):
             summary_val=cur_summary,
             summary_writer=summary_writer)
 
+    def generate_samples(self, sess, keep_prob=1.0, file_id=None, save_path=None):
+        self.random_sampling(
+            sess, keep_prob=keep_prob, plot_size=10,
+            file_id=file_id, save_path=save_path)
+
+        for vary_discrete_id in range(self.n_discrete):
+            self.vary_discrete_sampling(
+                sess, vary_discrete_id,
+                keep_prob=keep_prob, sample_per_class=10,
+                file_id=file_id, save_path=save_path)
+        for cont_code_id in range(self.n_continuous):
+            self.interp_cont_sampling(
+                sess, n_interpolation=10, cont_code_id=cont_code_id,
+                vary_discrete_id=0, n_col_samples=5,
+                keep_prob=keep_prob, save_path=save_path, file_id=file_id)
+
+    def random_sampling(self, sess,
+                        keep_prob=1.0, plot_size=10,
+                        file_id=None, save_path=None):
+        n_samples = plot_size * plot_size
+        random_vec = distributions.random_vector(
+            (n_samples, self.n_code), dist_type='uniform')
+        code_cont = distributions.random_vector(
+            (n_samples, self.n_continuous), dist_type='uniform')
+
+        if self.n_discrete <= 0:
+            code_discrete = np.zeros((n_samples, 0))
+        else:
+            code_discrete = []
+            for i in range(self.n_discrete):
+                n_class = self.cat_n_class_list[i]
+                cur_code = [np.random.choice(n_class) for i in range(n_samples)]
+                cur_code = dfutils.vec2onehot(cur_code, n_class)
+                try:
+                    code_discrete = np.concatenate((code_discrete, cur_code), axis=-1)
+                except ValueError:
+                    code_discrete = cur_code
+
+        self._viz_samples(
+            sess, random_vec, code_discrete, code_cont, keep_prob,
+            plot_size=[plot_size, plot_size], save_path=save_path,
+            file_name='random_sampling', file_id=file_id)
+
     def vary_discrete_sampling(self, sess, vary_discrete_id,
-                               keep_prob=1.0, plot_size=10,
+                               keep_prob=1.0, sample_per_class=10,
                                file_id=None, save_path=None):
         """ Sampling by varying a discrete code.
 
@@ -403,48 +452,49 @@ class infoGAN(GANBaseModel):
             sess (tf.Session): tensorflow session
             vary_discrete_id (int): index of discrete code for varying
             keep_prob (float): keep probability for dropout
-            plot_size (int): side size (number of samples) of saving image
+            sample_per_class (int): number of samples for each class
             file_id (int): index for saving image 
             save_path (str): directory for saving image
         """
         if vary_discrete_id >= self.n_discrete:
             return
-        n_samples = plot_size * plot_size
-
         n_vary_class = self.cat_n_class_list[vary_discrete_id]
-        sample_per_class = int(math.floor(n_samples / n_vary_class))
+        n_samples = n_vary_class * sample_per_class
+        
+        # sample_per_class = int(math.floor(n_samples / n_vary_class))
         n_remain_sample = n_samples - n_vary_class * sample_per_class
 
         random_vec = distributions.random_vector(
             (n_samples, self.n_code), dist_type='uniform')
 
-        code_discrete = []
-        for i in range(self.n_discrete):
-            n_class = self.cat_n_class_list[i]
-            if i == vary_discrete_id:
-                cur_code = [i for i in range(n_class) for j in range(sample_per_class)]
-                cur_code.extend(np.random.choice(n_class, (n_remain_sample)))
-            else:
-                cur_code = np.random.choice(n_class, 1) * np.ones((n_samples))
-            # cur_code = np.random.choice(n_class, (n_samples))
-            # sample_per_class = int(math.floor(n_samples / n_class))
-            # n_remain_sample = n_samples - n_class * sample_per_class
-            cur_code = dfutils.vec2onehot(cur_code, n_class)
-            try:
-                code_discrete = np.concatenate((code_discrete, cur_code), axis=-1)
-            except ValueError:
-                code_discrete = cur_code
+        if self.n_discrete <= 0:
+            code_discrete = np.zeros((n_samples, 0))
+        else:
+            code_discrete = []
+            for i in range(self.n_discrete):
+                n_class = self.cat_n_class_list[i]
+                if i == vary_discrete_id:
+                    cur_code = [i for i in range(n_class) for j in range(sample_per_class)]
+                else:
+                    cur_code = [np.random.choice(n_class)
+                                for j in range(sample_per_class)]
+                    cur_code = np.tile(cur_code, (n_vary_class))
+                cur_code = dfutils.vec2onehot(cur_code, n_class)
+                try:
+                    code_discrete = np.concatenate((code_discrete, cur_code), axis=-1)
+                except ValueError:
+                    code_discrete = cur_code
 
         code_cont = distributions.random_vector(
             (n_samples, self.n_continuous), dist_type='uniform')
 
         self._viz_samples(
             sess, random_vec, code_discrete, code_cont, keep_prob,
-            plot_size=plot_size, save_path=save_path,
+            plot_size=[n_vary_class, sample_per_class], save_path=save_path,
             file_name='vary_discrete_{}'.format(vary_discrete_id), file_id=file_id)
 
     def interp_cont_sampling(self, sess, n_interpolation,
-                             cont_code_id, vary_discrete_id=None,
+                             cont_code_id, vary_discrete_id=None, n_col_samples=None,
                              keep_prob=1., save_path=None, file_id=None):
         """ Sample interpolation of one of continuous codes.
 
@@ -464,33 +514,50 @@ class infoGAN(GANBaseModel):
         if vary_discrete_id is not None and vary_discrete_id < self.n_discrete:
             n_vary_class = self.cat_n_class_list[vary_discrete_id]
             n_samples = n_interpolation * n_vary_class
+        elif n_col_samples is not None:
+            n_vary_class = n_col_samples
+            n_samples = n_interpolation * n_vary_class
         else:
+            n_vary_class = 1
             n_samples = n_interpolation
+
 
         random_vec = distributions.random_vector(
             (1, self.n_code), dist_type='uniform')
         random_vec = np.tile(random_vec, (n_samples, 1))
 
-        code_discrete = []
-        for i in range(self.n_discrete):
-            n_class = self.cat_n_class_list[i]
-            if i == vary_discrete_id:
-                cur_code = [i for i in range(n_class) for j in range(n_interpolation)]
-            else:
-                cur_code = np.random.choice(n_class, 1) * np.ones((n_samples))
-            cur_onehot_code = dfutils.vec2onehot(cur_code, n_class)
-            try:
-                code_discrete = np.concatenate(
-                    (code_discrete, cur_onehot_code), axis=-1)
-            except ValueError:
-                code_discrete = cur_onehot_code
+        if self.n_discrete <= 0:
+            code_discrete = np.zeros((n_samples, 0))
+        else:
+            code_discrete = []
+            for i in range(self.n_discrete):
+                n_class = self.cat_n_class_list[i]
+                if i == vary_discrete_id:
+                    cur_code = [i for i in range(n_class) for j in range(n_interpolation)]
+                else:
+                    cur_code = np.random.choice(n_class, 1) * np.ones((n_samples))
+                cur_onehot_code = dfutils.vec2onehot(cur_code, n_class)
+                try:
+                    code_discrete = np.concatenate(
+                        (code_discrete, cur_onehot_code), axis=-1)
+                except ValueError:
+                    code_discrete = cur_onehot_code
 
-        code_cont = distributions.random_vector(
-            (1, self.n_continuous), dist_type='uniform')
-        code_cont = np.tile(code_cont, (n_samples, 1))
-        cont_interp = np.linspace(-1., 1., n_interpolation)
-        cont_interp = np.tile(cont_interp, (n_vary_class))
-        code_cont[:, cont_code_id] = cont_interp
+        if vary_discrete_id is not None and vary_discrete_id < self.n_discrete:
+            code_cont = distributions.random_vector(
+                (1, self.n_continuous), dist_type='uniform')
+            code_cont = np.tile(code_cont, (n_samples, 1))
+            cont_interp = np.linspace(-1., 1., n_interpolation)
+            cont_interp = np.tile(cont_interp, (n_vary_class))
+            code_cont[:, cont_code_id] = cont_interp
+        else:
+            code_cont = distributions.random_vector(
+                (n_col_samples, self.n_continuous), dist_type='uniform')
+            code_cont = np.repeat(code_cont, n_interpolation, axis=0)
+            # code_cont = np.tile(code_cont.transpose(), (1, n_interpolation)).transpose()
+            cont_interp = np.linspace(-1., 1., n_interpolation)
+            cont_interp = np.tile(cont_interp, (n_vary_class))
+            code_cont[:, cont_code_id] = cont_interp
 
         self._viz_samples(
             sess, random_vec, code_discrete, code_cont, keep_prob,

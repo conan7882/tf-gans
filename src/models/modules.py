@@ -50,7 +50,7 @@ def InfoGAN_MNIST_generator(
                  name='fc1',
                  nl=tf.nn.relu)
 
-        L.linear(out_dim=d_height_16 * d_height_16 * final_dim * 8,
+        L.linear(out_dim=d_height_8 * d_height_8 * final_dim * 4,
                  layer_dict=layer_dict,
                  init_w=init_w,
                  wd=wd,
@@ -61,17 +61,17 @@ def InfoGAN_MNIST_generator(
 
         layer_dict['cur_input'] = tf.reshape(
             layer_dict['cur_input'],
-            [-1, d_height_16, d_height_16, final_dim * 8])
+            [-1, d_height_8, d_height_8, final_dim * 4])
 
         arg_scope = tf.contrib.framework.arg_scope
         with arg_scope([L.transpose_conv], 
                        filter_size=filter_size, layer_dict=layer_dict,
                        init_w=init_w, wd=wd, is_training=is_training):
 
-            output_shape = [b_size, d_height_8, d_height_8, final_dim * 4]
-            L.transpose_conv(out_dim=final_dim * 4, out_shape=output_shape,
-                             bn=True, nl=tf.nn.relu, name='dconv3')
-            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            # output_shape = [b_size, d_height_8, d_height_8, final_dim * 4]
+            # L.transpose_conv(out_dim=final_dim * 4, out_shape=output_shape,
+            #                  bn=True, nl=tf.nn.relu, name='dconv3')
+            # L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
 
             output_shape = [b_size, d_height_4, d_width_4, final_dim * 2]
             L.transpose_conv(out_dim=final_dim * 2, out_shape=output_shape,

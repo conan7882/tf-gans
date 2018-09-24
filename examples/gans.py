@@ -71,8 +71,8 @@ def test():
     if FLAGS.dataset == 'celeba':
         im_size = 32
         n_channels = 3
-        n_continuous = 0
-        n_discrete = 10
+        n_continuous = 5
+        n_discrete = 0
         cat_n_class_list = [10 for i in range(n_discrete)]
 
         train_data = loader.load_celeba(FLAGS.bsize, rescale_size=im_size)
@@ -110,15 +110,19 @@ def test():
                 sess, train_data, init_lr=FLAGS.lr,
                 n_g_train=FLAGS.ng, n_d_train=FLAGS.nd, keep_prob=1.0,
                 summary_writer=writer)
-            for vary_discrete_id in range(n_discrete):
-                generate_model.vary_discrete_sampling(
-                    sess, vary_discrete_id=vary_discrete_id, plot_size=10,
-                    file_id=epoch_id, save_path=save_path)
-            for cont_code_id in range(n_continuous):
-                generate_model.interp_cont_sampling(
-                    sess, n_interpolation=10, cont_code_id=cont_code_id,
-                    vary_discrete_id=0,
-                    keep_prob=1., save_path=save_path, file_id=epoch_id)
+            generate_model.generate_samples(
+                sess, keep_prob=1.0, file_id=epoch_id, save_path=save_path)
+            saver.save(sess, '{}gan-test-epoch-{}'.format(save_path, epoch_id))
+        saver.save(sess, '{}gan-test-epoch-{}'.format(save_path, epoch_id))
+            # for vary_discrete_id in range(n_discrete):
+            #     generate_model.vary_discrete_sampling(
+            #         sess, vary_discrete_id=vary_discrete_id, sample_per_class=10,
+            #         file_id=epoch_id, save_path=save_path)
+            # for cont_code_id in range(n_continuous):
+            #     generate_model.interp_cont_sampling(
+            #         sess, n_interpolation=10, cont_code_id=cont_code_id,
+            #         vary_discrete_id=0,
+            #         keep_prob=1., save_path=save_path, file_id=epoch_id)
 
 def train():
     if FLAGS.gan_type == 'lsgan' or FLAGS.gan_type == 'dcgan':
