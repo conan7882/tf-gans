@@ -29,7 +29,7 @@
 ## Results
 ### MNIST
 - Random noise vector length = 100
-- One 10D categorial code and three continuous latent codes are used.
+- One 10D categorial code and four continuous latent codes are used.
 
 The categorial code is fixed for each row. The generator generates digits `5` and `8` with the same categorial code. However, it is able to distinguish other digits well.
 
@@ -39,9 +39,9 @@ The categorial code is fixed for each row. The generator generates digits `5` an
 
 - Varying continuous latent codes from -1 to 1 after 50 epoches. All other continuous latent codes are fixed and the categorial code is fixed for each row.
 
-*code 1 (width)* | *code 2 (rotation)* |*code 3 (expanding)* |
+*code 1 (width)* | *code 2 (rotation)* |*code 3 (expanding)* | *code 4 (enlarge)*
 :--: | :---: | :--: | 
-<img src = 'figs/mnist/interp_cont_1_49.png' height = '220px' width = '220px'> | <img src = 'figs/mnist/interp_cont_2_49.png' height = '220px' width = '220px'>|<img src = 'figs/mnist/interp_cont_3_49.png' height = '220px' width = '220px'>|
+<img src = 'figs/mnist/interp_cont_1_49.png' height = '220px' width = '220px'> | <img src = 'figs/mnist/interp_cont_2_49.png' height = '220px' width = '220px'>|<img src = 'figs/mnist/interp_cont_3_49.png' height = '220px' width = '220px'>|<img src = 'figs/mnist/interp_cont_0_49.png' height = '220px' width = '220px'>|
 
 
 ### CelebA

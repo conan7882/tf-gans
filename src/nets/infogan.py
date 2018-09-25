@@ -426,10 +426,12 @@ class infoGAN(GANBaseModel):
                 cur_code.extend(np.random.choice(n_class, (n_remain_sample)))
             else:
                 cur_code = np.random.choice(n_class, 1) * np.ones((n_samples))
+                cur_code = cur_code.astype(np.int32)
             # cur_code = np.random.choice(n_class, (n_samples))
             # sample_per_class = int(math.floor(n_samples / n_class))
             # n_remain_sample = n_samples - n_class * sample_per_class
             cur_code = dfutils.vec2onehot(cur_code, n_class)
+
             try:
                 code_discrete = np.concatenate((code_discrete, cur_code), axis=-1)
             except ValueError:
