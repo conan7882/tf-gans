@@ -32,10 +32,10 @@ InfoGAN | [paper](https://arxiv.org/abs/1606.03657) | [details](docs/infogan/) |
 
 ### Preparation
 - Download the MNIST dataset from [here](http://yann.lecun.com/exdb/mnist/) and CelebA from [here](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
-- Setup path in [`example/gans.py`](example/gans.py): `MNIST_PATH` is the directory to put MNIST dataset and `CELEBA_PATH` is the directory to put CelebA dataset. `SAVE_PATH` is the directory to save output images and trained model.
+- Setup path in [`examples/gans.py`](examples/gans.py): `MNIST_PATH` is the directory to put MNIST dataset and `CELEBA_PATH` is the directory to put CelebA dataset. `SAVE_PATH` is the directory to save output images and trained model.
 
 ### Argument
-Run the script [`example/gans.py`](example/gans.py) to train GAN models. Here are all the arguments:
+Run the script [`examples/gans.py`](examples/gans.py) to train GAN models. Here are all the arguments:
 
 * `--train`: Train the model.
 * `--generate`: Randomly sample images from trained model.
@@ -52,7 +52,7 @@ Run the script [`example/gans.py`](example/gans.py) to train GAN models. Here ar
 * `--w_mutual`: Weight of mutual information loss for InfoGAN. Default: `1.0`
 
 ### Train models
-- Go to `example/`, then run
+- Go to `examples/`, then run
 
 ```
 python gans.py --train --gan_type GAN_NAME --dataset DATASET_NAME
@@ -65,9 +65,15 @@ The trained model and images sampled from the model during training will be save
 
 *Name* | *MNIST* |*CelebA* |
 :--: | :---: | :--: |
-DCGAN |Random Sampling and interpolation <br/> <img src = 'docs/dcgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'> <img src = 'docs/dcgan/figs/mnist/manifoid_23.png' height = '220px' width = '220px'> |Random Sampling and interpolation <br/> <img src = 'docs/dcgan/figs/face/generate_im_25.png' height = '220px' width = '220px'> <img src = 'docs/lsgan/figs/face/interpolate_47.png' height = '110px' width = '330px'>
+DCGAN | <img src = 'docs/dcgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'>| <img src = 'docs/dcgan/figs/face/generate_im_25.png' height = '220px' width = '220px'> 
+LSGAN | <img src = 'docs/lsgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'> | Random Sampling and interpolation <br/> <img src = 'docs/lsgan/figs/face/generate_im_49.png' height = '220px' width = '220px'> 
+InfoGAN |<img src = 'docs/infogan/figs/mnist/generate_im_49.png' height = '220px' width = '220px'>  | <img src = 'docs/infogan/figs/face/random_sampling_49.png' height = '220px' width = '220px'>
+
+<!-- *Name* | *MNIST* |*CelebA* |
+:--: | :---: | :--: |
+DCGAN | <img src = 'docs/dcgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'> <img src = 'docs/dcgan/figs/mnist/manifoid_23.png' height = '220px' width = '220px'> |Random Sampling and interpolation <br/> <img src = 'docs/dcgan/figs/face/generate_im_25.png' height = '220px' width = '220px'> <img src = 'docs/lsgan/figs/face/interpolate_47.png' height = '110px' width = '330px'>
 LSGAN |Random Sampling and interpolation <br/> <img src = 'docs/lsgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'> <img src = 'docs/lsgan/figs/mnist/manifoid_24.png' height = '220px' width = '220px'> | Random Sampling and interpolation <br/> <img src = 'docs/lsgan/figs/face/generate_im_49.png' height = '220px' width = '220px'> <img src = 'docs/dcgan/figs/face/interpolate_24.png' height = '110px' width = '330px'>
 InfoGAN |Varying categorical latent codes and continuous latent codes <br/> <img src = 'docs/infogan/figs/mnist/generate_im_49.png' height = '220px' width = '220px'> <img src = 'docs/infogan/figs/mnist/interp_cont_1_49.png' height = '220px' width = '220px'> | Random sampling and varying continuous latent codes <br/> <img src = 'docs/infogan/figs/face/random_sampling_49.png' height = '220px' width = '220px'> <img src = 'docs/infogan/figs/face/interp_cont_3_41.png' height = '110px' width = '220px'>
-
+-->
 # Author
 Qian Ge
