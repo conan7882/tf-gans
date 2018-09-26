@@ -66,7 +66,7 @@ The trained model and images sampled from the model during training will be save
 *Name* | *MNIST* |*CelebA* |
 :--: | :---: | :--: |
 DCGAN | <img src = 'docs/dcgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'>| <img src = 'docs/dcgan/figs/face/generate_im_25.png' height = '220px' width = '220px'> 
-LSGAN | <img src = 'docs/lsgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'> | Random Sampling and interpolation <br/> <img src = 'docs/lsgan/figs/face/generate_im_49.png' height = '220px' width = '220px'> 
+LSGAN | <img src = 'docs/lsgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'> | <img src = 'docs/lsgan/figs/face/generate_im_49.png' height = '220px' width = '220px'> 
 InfoGAN |<img src = 'docs/infogan/figs/mnist/generate_im_49.png' height = '220px' width = '220px'>  | <img src = 'docs/infogan/figs/face/random_sampling_49.png' height = '220px' width = '220px'>
 
 <!-- *Name* | *MNIST* |*CelebA* |
