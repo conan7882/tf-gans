@@ -47,6 +47,7 @@ class infoGAN(GANBaseModel):
         self.n_latent = n_continuous + n_discrete
         self._lambda = mutual_info_weight
 
+        self._max_grad_norm = 10.
         self.layers = {}
 
     def _create_train_input(self):
@@ -104,8 +105,8 @@ class infoGAN(GANBaseModel):
         self.layers['d_real'], self.layers['Q_discrete_logits_real'], _ =\
             self.discriminator(self.real)
 
-        self.train_d_op = self.get_discriminator_train_op(moniter=False)
-        self.train_g_op = self.get_generator_train_op(moniter=False)
+        self.train_d_op = self.get_discriminator_train_op(moniter=True)
+        self.train_g_op = self.get_generator_train_op(moniter=True)
         self.d_loss_op = self.D_gan_loss
         self.g_loss_op = self.G_gan_loss
         self.train_summary_op = self.get_train_summary()
@@ -260,7 +261,16 @@ class infoGAN(GANBaseModel):
             loss = self.get_discriminator_loss()
             var_list = tf.trainable_variables(scope='discriminator')\
                 + tf.trainable_variables(scope='sample_Q')
-            grads = tf.gradients(loss, var_list)
+            try:
+                if self._max_grad_norm > 0:
+                    grads, _ = tf.clip_by_global_norm(
+                        tf.gradients(loss, var_list),
+                        self._max_grad_norm)
+                else:
+                    grads = tf.gradients(loss, var_list)
+            except AttributeError:
+                grads = tf.gradients(loss, var_list)
+
             if moniter:
                 [tf.summary.histogram('discriminator_gradient/' + var.name, grad, 
                     collections=['train']) for grad, var in zip(grads, var_list)]
@@ -335,8 +345,9 @@ class infoGAN(GANBaseModel):
             # train discriminator
             for i in range(int(n_d_train)):
                 
-                _, d_loss, LI_D = sess.run(
-                    [self.train_d_op, self.d_loss_op, self.LI_D], 
+                _, d_loss, LI_D, test = sess.run(
+                    [self.train_d_op, self.d_loss_op, self.LI_D,
+                    self.layers['Q_cont_log_prob_list']], 
                     feed_dict={self.real: im,
                                self.lr: lr_D,
                                self.keep_prob: keep_prob,
@@ -344,11 +355,12 @@ class infoGAN(GANBaseModel):
                                self.code_discrete: code_discrete,
                                self.discrete_label: discrete_label,
                                self.code_continuous: code_cont})
-
+            print(test)
             # train generator
             for i in range(int(n_g_train)):
-                _, g_loss, LI_G = sess.run(
-                    [self.train_g_op, self.g_loss_op, self.LI_G], 
+                _, g_loss, LI_G, test = sess.run(
+                    [self.train_g_op, self.g_loss_op, self.LI_G,
+                    self.layers['Q_cont_log_prob_list']], 
                     feed_dict={
                                self.lr: lr_G,
                                self.keep_prob: keep_prob,
@@ -356,6 +368,8 @@ class infoGAN(GANBaseModel):
                                self.code_discrete: code_discrete,
                                self.discrete_label: discrete_label,
                                self.code_continuous: code_cont})
+
+            print(test)
             d_loss_sum += d_loss
             g_loss_sum += g_loss
             LI_G_sum += LI_G

@@ -1,0 +1,10 @@
+numpy
+Pillow
+tensorflow>=1.10.0
+tensorflow-probability
+scipy
+matplotlib
+scikit-image
+imageio>=2.4.1
+
+

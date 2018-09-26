@@ -586,5 +586,8 @@ def evaluate_log_diagonal_Gaussian_pdf(mean, sigma, samples, name='evaluate_diag
         dist = tfp.distributions.MultivariateNormalDiag(
             loc=mean,
             scale_diag=sigma)
-
+        log_prob = dist.log_prob(samples)
+        # return tf.where(tf.is_nan(log_prob),
+        #                 tf.zeros(tf.shape(log_prob)),
+        #                 log_prob)
         return dist.log_prob(samples)

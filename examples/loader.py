@@ -15,7 +15,7 @@ from src.dataflow.mnist import MNISTData
 from src.dataflow.celeba import CelebA
 
 
-def load_mnist(batch_size, shuffle=True, n_use_label=None, n_use_sample=None,
+def load_mnist(batch_size, data_path, shuffle=True, n_use_label=None, n_use_sample=None,
                rescale_size=None):
     """ Function for load training data 
 
@@ -30,14 +30,15 @@ def load_mnist(batch_size, shuffle=True, n_use_label=None, n_use_sample=None,
     Retuns:
         MNISTData dataflow
     """
-    data_path = '/home/qge2/workspace/data/MNIST_data/'
+    # data_path = '/home/qge2/workspace/data/MNIST_data/'
 
     def preprocess_im(im):
         """ normalize input image to [-1., 1.] """
         if rescale_size is not None:
             im = np.squeeze(im, axis=-1)
             im = skimage.transform.resize(
-                im, [rescale_size, rescale_size], mode='constant', preserve_range=True)
+                im, [rescale_size, rescale_size],
+                mode='constant', preserve_range=True)
             im = np.expand_dims(im, axis=-1)
         im = im / 255. * 2. - 1.
 
@@ -53,7 +54,7 @@ def load_mnist(batch_size, shuffle=True, n_use_label=None, n_use_sample=None,
     data.setup(epoch_val=0, batch_size=batch_size)
     return data
 
-def load_celeba(batch_size, rescale_size=64, shuffle=True):
+def load_celeba(batch_size, data_path, rescale_size=64, shuffle=True):
     """ Load CelebA data
 
     Args:
@@ -64,7 +65,7 @@ def load_celeba(batch_size, rescale_size=64, shuffle=True):
     Retuns:
         CelebA dataflow
     """
-    data_path = '/home/qge2/workspace/data/celebA/'
+    # data_path = '/home/qge2/workspace/data/celebA/'
         
     def face_preprocess(im):
         offset_h = 50
@@ -74,7 +75,8 @@ def load_celeba(batch_size, rescale_size=64, shuffle=True):
         im = im[offset_h: offset_h + crop_h,
                 offset_w: offset_w + crop_w, :]
         im = skimage.transform.resize(
-            im, [rescale_size, rescale_size], mode='constant', preserve_range=True)
+            im, [rescale_size, rescale_size],
+            mode='constant', preserve_range=True)
         im = im / 255. * 2. - 1.
         return np.clip(im, -1., 1.)
 

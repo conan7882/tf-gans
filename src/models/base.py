@@ -38,7 +38,16 @@ class GANBaseModel(object):
             opt = self.get_generator_optimizer()
             loss = self.get_generator_loss()
             var_list = tf.trainable_variables(scope='generator')
-            grads = tf.gradients(loss, var_list)
+            try:
+                if self._max_grad_norm > 0:
+                    grads, _ = tf.clip_by_global_norm(
+                        tf.gradients(loss, var_list),
+                        self._max_grad_norm)
+                else:
+                    grads = tf.gradients(loss, var_list)
+            except AttributeError:
+                grads = tf.gradients(loss, var_list)
+
             if moniter:
                 [tf.summary.histogram('generator_gradient/' + var.name, grad, 
                     collections=['train']) for grad, var in zip(grads, var_list)]
@@ -69,7 +78,15 @@ class GANBaseModel(object):
             opt = self.get_discriminator_optimizer()
             loss = self.get_discriminator_loss()
             var_list = tf.trainable_variables(scope='discriminator')
-            grads = tf.gradients(loss, var_list)
+            try:
+                if self._max_grad_norm > 0:
+                    grads = tf.clip_by_global_norm(
+                        tf.gradients(loss, var_list),
+                        self._max_grad_norm)
+                else:
+                    grads = tf.gradients(loss, var_list)
+            except AttributeError:
+                grads = tf.gradients(loss, var_list)
             if moniter:
                 [tf.summary.histogram('discriminator_gradient/' + var.name, grad, 
                     collections=['train']) for grad, var in zip(grads, var_list)]
