@@ -32,7 +32,7 @@ The categorical code is fixed for each row. The generator generates digits `5` a
 - Varying continuous latent codes from -1 to 1 after 50 epochs. All other continuous latent codes are fixed and the categorical code is fixed for each row.
 
 *code 1 (Width)* | *code 2 (Rotation)* |*code 3 (Expanding)* | *code 4 (Enlarge)*
-:--: | :---: | :--: | 
+:--: | :---: | :--: | :--: | 
 <img src = 'figs/mnist/interp_cont_1_49.png' height = '220px' width = '220px'> | <img src = 'figs/mnist/interp_cont_2_49.png' height = '220px' width = '220px'>|<img src = 'figs/mnist/interp_cont_3_49.png' height = '220px' width = '220px'>|<img src = 'figs/mnist/interp_cont_0_49.png' height = '220px' width = '220px'>|
 
 
