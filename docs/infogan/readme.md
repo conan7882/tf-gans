@@ -37,9 +37,9 @@ The categorical code is fixed for each row. The generator generates digits `5` a
 
 
 ### CelebA
-- Random noise vector length = 100
+- Random noise vector length = 100.
 - Five continuous latent codes are used.
-- Image are rescaled to 32 x 32
+- Image are rescaled to 32 x 32.
 
 *Epoch 1* | *Epoch 10* |*Epoch 25* | *Epoch 50* |
 :--: | :---: | :--: | :---: | 
