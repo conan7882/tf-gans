@@ -1,7 +1,7 @@
 # TensorFlow implementation of Generative Adversarial Networks
 - This repository contains TensorFlow implementations of GANs inspired by several other repositories of GANs or generative models ([generative-models](https://github.com/wiseodd/generative-models), [tensorflow-generative-model-collections](https://github.com/hwalsuklee/tensorflow-generative-model-collections)).
 - This repository is used for me to learn and experiment on various GANs.
-- All the GANs are tested on [MNIST](http://yann.lecun.com/exdb/mnist/) and [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) and the architecture of each GAN is the same as or slightly modified from the original paper to make them applicable for images with size 28 x 28 and 64 x 64.
+- All the GANs are tested on [MNIST](http://yann.lecun.com/exdb/mnist/) and [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) and the architecture of each GAN is the same as or slightly modified from the original paper to make them compatible for images with size 28 x 28 and 64 x 64.
 - Parts of results of the GANs implemented in this repository are shown in this page. Implementation details and full results of each GAN can be found in **separate pages** for each model.
 
 ## Requirements
