@@ -16,7 +16,7 @@
 
 ## Results
 ### MNIST
-- vector length = 100, images size 28 x 28, generator dropout = 0.5 for both training and testing. Dropout is used for the same reason as my implementation of **[DCGAN]**
+- vector length = 100, images size 28 x 28, generator dropout = 0.5 for both training and testing. Dropout is used for the same reason as my implementation of [DCGAN](https://github.com/conan7882/tf-gans/tree/develop/docs/dcgan#mnist).
 
 - The generated images get much better after adding dropout.
 
