@@ -12,7 +12,7 @@
 - When applied on MNIST, Dropout with 0.5 is used both for training and testing phase after each convolutional layer of the generator except the output layer. Because I found this reduced the noise on the generated images.
 
 ## Usage 
-- see here
+- see [here](https://github.com/conan7882/tf-gans/tree/develop#usage).
 
 ## Results
 ### MNIST
