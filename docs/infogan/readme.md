@@ -16,7 +16,7 @@
 
 
 ## Usage 
-- see here
+- see [here](https://github.com/conan7882/tf-gans/tree/develop#usage).
 
 ## Results
 ### MNIST
