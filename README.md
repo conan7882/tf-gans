@@ -4,6 +4,11 @@
 - All the GANs are tested on [MNIST](http://yann.lecun.com/exdb/mnist/) and [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) and the architecture of each GAN is the same as or slightly modified from the original paper to make them compatible for images with size 28 x 28 and 64 x 64.
 - Parts of results of the GANs implemented in this repository are shown in this page. Implementation details and full results of each GAN can be found in **separate pages** for each model.
 
+## Related implementations:
+Here are my other implementations related to GAN:
+- [Adversarial Autoencoders](https://github.com/conan7882/adversarial-autoencoders-tf)
+- [Pix2Pix](https://github.com/conan7882/pix2pix-tf)
+
 ## Requirements
 - Python 3.3+
 - [Tensorflow 1.10+](https://www.tensorflow.org/)
