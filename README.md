@@ -62,12 +62,23 @@ The trained model and images sampled from the model during training will be save
 <!--### Sample images from trained model
 -->
 # Result
+Here are example results of each GAN model. 
+Details of the implementation and more results for each GAN model can be access by clicking `details` under model names.
 
-*Name* | *MNIST* |*CelebA* |
+## MNIST
+*Name* | *Random Sampling* |*Interpolation* |
 :--: | :---: | :--: |
-DCGAN | <img src = 'docs/dcgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'>| <img src = 'docs/dcgan/figs/face/generate_im_25.png' height = '220px' width = '220px'> 
-LSGAN | <img src = 'docs/lsgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'> | <img src = 'docs/lsgan/figs/face/generate_im_49.png' height = '220px' width = '220px'> 
-InfoGAN |<img src = 'docs/infogan/figs/mnist/generate_im_49.png' height = '220px' width = '220px'>  | <img src = 'docs/infogan/figs/face/random_sampling_49.png' height = '220px' width = '220px'>
+DCGAN <br/>[details](docs/dcgan/) | <img src = 'docs/dcgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'>|  <img src = 'docs/dcgan/figs/mnist/manifoid_23.png' height = '220px' width = '220px'> <img src = 'docs/dcgan/figs/mnist/interpolate_19.png' height = '80px' width = '240px'>
+LSGAN <br/>[details](docs/lsgan/) | <img src = 'docs/lsgan/figs/mnist/generate_im_20.png' height = '220px' width = '220px'> | <img src = 'docs/lsgan/figs/mnist/manifoid_24.png' height = '220px' width = '220px'> <img src = 'docs/lsgan/figs/mnist/interpolate_24.png' height = '80px' width = '240px'>
+InfoGAN <br/>[details](docs/infogan/)  |<img src = 'docs/infogan/figs/mnist/random_sampling_49.png' height = '220px' width = '220px'>  | <img src = 'docs/infogan/figs/mnist/generate_im_49.png' height = '220px' width = '220px'> <img src = 'docs/infogan/figs/mnist/interp_cont_1_49.png' height = '220px' width = '220px'>
+
+## CelebA
+*Name* | *Random Sampling* |*Interpolation* |
+:--: | :---: | :--: |
+DCGAN <br/>[details](docs/dcgan/) | <img src = 'docs/dcgan/figs/face/generate_im_25.png' height = '220px' width = '220px'> | <img src = 'docs/dcgan/figs/face/interpolate_22.png' height = '150px' width = '450px'>
+LSGAN <br/>[details](docs/lsgan/) |  <img src = 'docs/lsgan/figs/face/generate_im_49.png' height = '220px' width = '220px'> | <img src = 'docs/lsgan/figs/face/interpolate_47.png' height = '150px' width = '450px'>
+InfoGAN <br/>[details](docs/infogan/)  | <img src = 'docs/infogan/figs/face/random_sampling_49.png' height = '220px' width = '220px'>| <img src = 'docs/infogan/figs/face/interp_cont_1_25.png' height = '210px' width = '420px'>
+
 
 <!-- *Name* | *MNIST* |*CelebA* |
 :--: | :---: | :--: |
