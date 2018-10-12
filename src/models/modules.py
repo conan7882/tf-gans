@@ -8,6 +8,125 @@ import tensorflow_probability as tfp
 import src.models.layers as L
 
 
+def ACGAN_generator(inputs, init_w, is_training, layer_dict,
+                    im_h, im_w, n_channels,
+                    final_dim=96, filter_size=5, wd=0, keep_prob=1.0,
+                    name='ACGAN_generator'):
+    """ ACGAN generator
+
+    Args:
+        inputs (tensor): input tensor in batch
+        init_w: initializer for weights
+        is_training (bool): whether for training or not
+        layer_dict (dictionary): dictionary of model
+        im_h, im_w, n_channel (int): dimemtion of generate image
+        final_dim (int): number of features of the last conv layer
+        filter_size (int): filter size of convolutional layers
+        wd: weight decay weight
+        keep_prob (float): keep probablity for dropout
+        name (str)
+
+    Return:
+        tensor of discriminator output 
+    """
+
+    with tf.variable_scope(name):
+        layer_dict['cur_input'] = inputs
+        # final_dim = 64
+        # filter_size = 5
+        b_size = tf.shape(inputs)[0]
+
+        d_height_2, d_width_2 = L.deconv_size(im_h, im_w)
+        d_height_4, d_width_4 = L.deconv_size(d_height_2, d_width_2)
+        d_height_8, d_width_8 = L.deconv_size(d_height_4, d_width_4)
+        # d_height_16, d_width_16 = L.deconv_size(d_height_8, d_width_8)
+
+        L.linear(out_dim=d_height_8 * d_height_8 * final_dim * 4,
+                 layer_dict=layer_dict,
+                 init_w=init_w,
+                 wd=wd,
+                 bn=False,
+                 is_training=is_training,
+                 name='Linear',
+                 nl=tf.nn.relu)
+        layer_dict['cur_input'] = tf.reshape(
+            layer_dict['cur_input'],
+            [-1, d_height_8, d_height_8, final_dim * 4])
+
+        arg_scope = tf.contrib.framework.arg_scope
+        with arg_scope([L.transpose_conv], 
+                       filter_size=filter_size, layer_dict=layer_dict,
+                       init_w=init_w, wd=wd, is_training=is_training):
+
+            output_shape = [b_size, d_height_4, d_width_4, final_dim * 2]
+            L.transpose_conv(out_dim=final_dim * 2, out_shape=output_shape,
+                             bn=True, nl=tf.nn.relu, name='dconv2')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+
+            output_shape = [b_size, d_height_2, d_width_2, final_dim]
+            L.transpose_conv(out_dim=final_dim, out_shape=output_shape,
+                             bn=True, nl=tf.nn.relu, name='dconv3')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+
+            output_shape = [b_size, im_h, im_w, n_channels]
+            L.transpose_conv(out_dim=n_channels, out_shape=output_shape,
+                             bn=False, nl=tf.tanh, name='dconv4')
+
+            return layer_dict['cur_input']
+
+def ACGAN_discriminator(inputs, init_w, is_training, layer_dict, out_dim=11,
+                        start_depth=16, wd=0, keep_prob=0.5,
+                        name='ACGAN_discriminator'):
+    """ ACGAN discriminator
+
+    Args:
+        inputs (tensor): input tensor in batch
+        init_w: initializer for weights
+        is_training (bool): whether for training or not
+        layer_dict (dictionary): dictionary of model
+        start_depth (int): number of features of the first conv layer
+        wd: weight decay weight
+        name (str)
+
+    Return:
+        tensor of discriminator output 
+    """
+    with tf.variable_scope(name):
+        layer_dict['cur_input'] = inputs
+        # start_depth = 64
+        filter_size = 5
+        b_size = tf.shape(inputs)[0]
+
+        arg_scope = tf.contrib.framework.arg_scope
+        with arg_scope([L.conv], 
+                        filter_size=filter_size, layer_dict=layer_dict,
+                        stride=2, nl=L.leaky_relu, add_summary=False,
+                        init_w=init_w, wd=0, is_training=is_training):
+
+            L.conv(out_dim=start_depth, name='conv1', bn=False)
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(out_dim=start_depth * 2, name='conv2', bn=True)
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(out_dim=start_depth * 4, name='conv3', bn=True)
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(out_dim=start_depth * 8, name='conv4', bn=True)
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(out_dim=start_depth * 16, name='conv4', bn=True)
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(out_dim=start_depth * 32, name='conv4', bn=True)
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            layer_dict['{}_conv'.format(name)] = layer_dict['cur_input']
+
+            L.linear(out_dim=out_dim,
+                     layer_dict=layer_dict,
+                     init_w=init_w,
+                     wd=0,
+                     bn=False,
+                     is_training=is_training,
+                     name='Linear')
+
+            return layer_dict['cur_input']
+
 def InfoGAN_MNIST_generator(
         inputs, init_w, is_training, layer_dict,
         im_h, im_w, n_channels,
@@ -159,7 +278,7 @@ def DCGAN_generator(inputs, init_w, is_training, layer_dict,
 
             return layer_dict['cur_input']
 
-def DCGAN_discriminator(inputs, init_w, is_training, layer_dict,
+def DCGAN_discriminator(inputs, init_w, is_training, layer_dict, out_dim=1,
                         start_depth=64, wd=0, name='DCGAN_discriminator'):
     """ DCGAN discriminator
 
@@ -193,7 +312,7 @@ def DCGAN_discriminator(inputs, init_w, is_training, layer_dict,
             L.conv(out_dim=start_depth * 8, name='conv4', bn=True)
             layer_dict['{}_conv'.format(name)] = layer_dict['cur_input']
 
-            L.linear(out_dim=1,
+            L.linear(out_dim=out_dim,
                      layer_dict=layer_dict,
                      init_w=init_w,
                      wd=0,
