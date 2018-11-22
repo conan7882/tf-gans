@@ -381,3 +381,55 @@ def NN_upsampling(layer_dict, inputs=None, factor=2, name='NN_upsampling'):
 
     return layer_dict['cur_input']
 
+@add_arg_scope
+def residual_block_iwgan(
+    filter_size,
+    out_dim,
+    layer_dict,
+    resample=None,
+    name='res_block',
+    padding='SAME',
+    pad_type='ZERO',
+    is_training=True,
+    init_w=None,
+    init_b=tf.zeros_initializer(),
+    trainable=True):
+ 
+    with tf.variable_scope(name):
+        inputs = layer_dict['cur_input']
+
+        bn_input = batch_norm(inputs, train=is_training, name='input_bn')
+        relu_bn_input = tf.nn.relu(bn_input, name='input_relu')
+        layer_dict['cur_input'] = relu_bn_input
+
+        arg_scope = tf.contrib.framework.arg_scope
+        with arg_scope([conv, transpose_conv],
+                        filter_size=filter_size,
+                        out_dim=out_dim,
+                        layer_dict=layer_dict,
+                        # bn=True,
+                        init_w=init_w,
+                        init_b=init_b,
+                        padding=padding,
+                        is_training=is_training,
+                        trainable=trainable,                        
+                        ):
+            if resample == None:
+                shortcut = inputs
+                out1 = conv(nl=tf.nn.relu, name='conv1', bn=True, stride=1, pad_type=pad_type)
+            elif resample == 'up':
+                shortcut = transpose_conv(inputs=inputs, name='input_dconv', bn=False, stride=2)
+                out1 = transpose_conv(inputs=inputs, nl=tf.nn.relu, name='dconv1', bn=True, stride=2)
+            elif resample == 'down':
+                shortcut = conv(inputs=inputs, name='input_conv', bn=False, stride=2, pad_type=pad_type)
+                out1 = conv(inputs=inputs, nl=tf.nn.relu, name='conv1', bn=True, stride=2, pad_type=pad_type)
+            else:
+                raise Exception('invalid resample value')
+
+            conv(inputs=out1, name='conv2', bn=False, stride=1, pad_type=pad_type)
+
+        layer_dict['cur_input'] += shortcut
+        return layer_dict['cur_input']
+
+
+        

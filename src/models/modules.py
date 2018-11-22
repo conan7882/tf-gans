@@ -591,3 +591,5 @@ def evaluate_log_diagonal_Gaussian_pdf(mean, sigma, samples, name='evaluate_diag
         #                 tf.zeros(tf.shape(log_prob)),
         #                 log_prob)
         return dist.log_prob(samples)
+
+

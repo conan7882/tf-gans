@@ -15,6 +15,7 @@ sys.path.append('../')
 from src.nets.dcgan import DCGAN
 from src.nets.lsgan import LSGAN
 from src.nets.began import BEGAN
+from src.nets.iwgan import IWGAN
 from src.nets.infogan import infoGAN
 from src.helper.trainer import Trainer
 from src.helper.generator import Generator
@@ -65,9 +66,9 @@ def get_args():
     return parser.parse_args()
 
 def train():
-    if FLAGS.gan_type == 'lsgan' or FLAGS.gan_type == 'dcgan':
+    if FLAGS.gan_type in ['lsgan', 'dcgan', 'iwgan']:
         train_type_1()
-    elif FLAGS.gan_type == 'infogan':
+    elif FLAGS.gan_type in ['infogan']:
         train_type_2()
     else:
         raise ValueError('Wrong GAN type!')
@@ -80,6 +81,9 @@ def train_type_1():
     elif FLAGS.gan_type == 'dcgan':
         gan_model = DCGAN
         print('**** DCGAN ****')
+    elif FLAGS.gan_type == 'iwgan':
+        gan_model = IWGAN
+        print('**** IWGAN ****')
     else:
         raise ValueError('Wrong GAN type!')
 
