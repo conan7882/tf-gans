@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# File: iwgan.py
+# File: wgan.py
 # Author: Qian Ge <geqian1001@gmail.com>
 
 import tensorflow as tf
@@ -13,8 +13,8 @@ import src.models.losses as losses
 
 INIT_W = tf.random_normal_initializer(stddev=0.02)
 
-class IWGAN(GANBaseModel):
-    """ class for DCGAN """
+class WGAN(GANBaseModel):
+    """ class for WGAN """
     def __init__(self, input_len, im_size, n_channels):
         """
         Args:
@@ -156,9 +156,9 @@ class IWGAN(GANBaseModel):
                 L.residual_block_iwgan(out_dim=start_dim * 8, name='res_block_3')
                 L.residual_block_iwgan(out_dim=start_dim * 8, name='res_block_4')
 
-
             bsize = tf.shape(inputs)[0]
-            self.layers['cur_input'] = tf.reshape(self.layers['cur_input'], [bsize, 4, 4, start_dim * 8])
+            self.layers['cur_input'] = tf.reshape(
+                self.layers['cur_input'], [bsize, 4, 4, start_dim * 8])
             L.linear(out_dim=1,
                      layer_dict=self.layers,
                      init_w=INIT_W,

@@ -15,7 +15,7 @@ sys.path.append('../')
 from src.nets.dcgan import DCGAN
 from src.nets.lsgan import LSGAN
 from src.nets.began import BEGAN
-from src.nets.iwgan import IWGAN
+from src.nets.wgan import WGAN
 from src.nets.infogan import infoGAN
 from src.helper.trainer import Trainer
 from src.helper.generator import Generator
@@ -81,9 +81,9 @@ def train_type_1():
     elif FLAGS.gan_type == 'dcgan':
         gan_model = DCGAN
         print('**** DCGAN ****')
-    elif FLAGS.gan_type == 'iwgan':
-        gan_model = IWGAN
-        print('**** IWGAN ****')
+    elif FLAGS.gan_type == 'wgan':
+        gan_model = WGAN
+        print('**** WGAN ****')
     else:
         raise ValueError('Wrong GAN type!')
 
