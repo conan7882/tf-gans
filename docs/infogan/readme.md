@@ -1,6 +1,6 @@
 # InfoGAN
 
-- TensorFlow implementation of [- InfoGAN: Interpretable Representation Learning by Information Maximizing Generative Adversarial Nets](https://arxiv.org/abs/1511.06434) (ICLR 2016). 
+- TensorFlow implementation of [InfoGAN: Interpretable Representation Learning by Information Maximizing Generative Adversarial Nets](https://arxiv.org/abs/1606.03657) (ICLR 2016). 
 - InfoGAN is able to learn disentangled representation in an unsupervised manner based on information theory.
 - Input vector of generator consists of random vectors as well as several latent codes, which can be used to capture the hidden representations of data by maximizing the mutual information between the latent variables and the generated samples.
 - The mutual information is maximizing through the [variational information maximization](https://pdfs.semanticscholar.org/f586/4b47b1d848e4426319a8bb28efeeaf55a52a.pdf), which finds a lower bound of the mutual information by defining an auxiliary distribution Q(c|x), where c is the latent code and x is the observation (samples).
