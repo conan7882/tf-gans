@@ -10,7 +10,7 @@
 ## Implementation Details
 - InfoGAN model is defined in [`/src/nets/infogan.py`](/src/nets/infogan.py). An example to show how to train and test the model is defined in [`examples/gans.py`](../../examples/gans.py).
 - Random input vector and continuous input hidden codes are uniformly sampled within [-1, 1]. Discrete input latent codes are sampled from categorical distributions and then convert to one-hot vectors.
-- The auxiliary distribution Q(c|x) is modeled by multinomial distributions for discrete input latent codes and by Gaussian distributions continuous input hidden codes.
+- The auxiliary distribution Q(c|x) is modeled by multinomial distributions for discrete input latent codes and by Gaussian distributions for continuous input hidden codes.
 - The discriminator is the same as the discriminator used in [DCGAN](https://arxiv.org/abs/1511.06434). The generator is similar to the one used in DCGAN but the last transpose convolutional layer is removed, since I found if the generator is too strong, it will tend to ignore the input random vectors and there will be not variance under the same discrete hidden code. Also an additional fully connected layer with 1024 hidden units is used for input, which provides better results visually.
 - All weights are initialized from a zero-centered Normal distribution with standard deviation 0.02. Learning rate is set to be 2e-4 and 2e-3 for discriminator and generator, respectively, as suggest in the paper. Adam optimizer with beta1 = 0.5 is used for optimization both generator and discriminator.
 
