@@ -153,6 +153,7 @@ def train_type_2():
         n_continuous = 5
         n_discrete = 0
         cat_n_class_list = [10 for i in range(n_discrete)]
+        max_grad_norm = 0.
 
         train_data = loader.load_celeba(
             FLAGS.bsize, data_path=CELEBA_PATH, rescale_size=im_size)
@@ -162,6 +163,7 @@ def train_type_2():
         n_continuous = 4
         n_discrete = 1
         cat_n_class_list = [10]
+        max_grad_norm = 10.
 
         train_data = loader.load_mnist(FLAGS.bsize, data_path=MNIST_PATH)
         
@@ -169,7 +171,7 @@ def train_type_2():
         input_len=FLAGS.zlen, im_size=im_size, n_channels=n_channels,
         cat_n_class_list=cat_n_class_list,
         n_continuous=n_continuous, n_discrete=n_discrete,
-        mutual_info_weight=FLAGS.w_mutual)
+        mutual_info_weight=FLAGS.w_mutual, max_grad_norm=max_grad_norm)
     train_model.create_train_model()
 
     generate_model = gan_model(

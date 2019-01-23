@@ -25,7 +25,7 @@ class infoGAN(GANBaseModel):
     """ class for infoGAN """
     def __init__(self, input_len, im_size, n_channels,
                  cat_n_class_list, n_continuous=0, n_discrete=0,
-                 mutual_info_weight=1.0):
+                 mutual_info_weight=1.0, max_grad_norm=10.):
         """
         Args:
             input_len (int): length of input random vector
@@ -47,7 +47,7 @@ class infoGAN(GANBaseModel):
         self.n_latent = n_continuous + n_discrete
         self._lambda = mutual_info_weight
 
-        self._max_grad_norm = 10.
+        self._max_grad_norm = max_grad_norm
         self.layers = {}
 
     def _create_train_input(self):
@@ -105,8 +105,8 @@ class infoGAN(GANBaseModel):
         self.layers['d_real'], self.layers['Q_discrete_logits_real'], _ =\
             self.discriminator(self.real)
 
-        self.train_d_op = self.get_discriminator_train_op(moniter=True)
-        self.train_g_op = self.get_generator_train_op(moniter=True)
+        self.train_d_op = self.get_discriminator_train_op(moniter=False)
+        self.train_g_op = self.get_generator_train_op(moniter=False)
         self.d_loss_op = self.D_gan_loss
         self.g_loss_op = self.G_gan_loss
         self.train_summary_op = self.get_train_summary()
@@ -348,9 +348,8 @@ class infoGAN(GANBaseModel):
             # train discriminator
             for i in range(int(n_d_train)):
                 
-                _, d_loss, LI_D, test = sess.run(
-                    [self.train_d_op, self.d_loss_op, self.LI_D,
-                    self.layers['Q_cont_log_prob_list']], 
+                _, d_loss, LI_D = sess.run(
+                    [self.train_d_op, self.d_loss_op, self.LI_D], 
                     feed_dict={self.real: im,
                                self.lr: lr_D,
                                self.keep_prob: keep_prob,
@@ -358,12 +357,10 @@ class infoGAN(GANBaseModel):
                                self.code_discrete: code_discrete,
                                self.discrete_label: discrete_label,
                                self.code_continuous: code_cont})
-            print(test)
             # train generator
             for i in range(int(n_g_train)):
-                _, g_loss, LI_G, test = sess.run(
-                    [self.train_g_op, self.g_loss_op, self.LI_G,
-                    self.layers['Q_cont_log_prob_list']], 
+                _, g_loss, LI_G = sess.run(
+                    [self.train_g_op, self.g_loss_op, self.LI_G], 
                     feed_dict={
                                self.lr: lr_G,
                                self.keep_prob: keep_prob,
@@ -372,7 +369,6 @@ class infoGAN(GANBaseModel):
                                self.discrete_label: discrete_label,
                                self.code_continuous: code_cont})
 
-            print(test)
             d_loss_sum += d_loss
             g_loss_sum += g_loss
             LI_G_sum += LI_G
